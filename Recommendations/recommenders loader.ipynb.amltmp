@@ -1,0 +1,995 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# Carga de datos"
+      ],
+      "metadata": {
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "CLUSTER_EVAL = 92"
+      ],
+      "outputs": [],
+      "execution_count": 1,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633393346808
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "import gzip, pickle, pickletools\n",
+        "import time\n",
+        "import cloudpickle as cp\n",
+        "import urllib.request"
+      ],
+      "outputs": [],
+      "execution_count": 48,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633394861293
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "basePath =  'https://www.dropbox.com/s/'"
+      ],
+      "outputs": [],
+      "execution_count": 3,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633393349232
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Dataframe de préstamos\n",
+        "df_prestamos = pd.read_json(basePath + 'chk4h90xgm48adm/joinTablas.json?dl=1')"
+      ],
+      "outputs": [],
+      "execution_count": 4,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633393367481
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df_prestamos"
+      ],
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "execution_count": 39,
+          "data": {
+            "text/plain": "            RowID          Fecha          IDItem NumeroUbicacion Dewey  \\\n0            Row0  1547050497000  80000005327627     720.98 A71S   720   \n1            Row1  1547050500000  80000001191496    720.9861 A71   720   \n2            Row2  1547138763000  80000004979759  540 CH15Q 2010   540   \n3            Row3  1547138765000  80000004509512        512 B151   510   \n4            Row4  1547300269000  80000005270756        712 M17E   710   \n...           ...            ...             ...             ...   ...   \n489732  Row543896  1546275870000  80000005573398      370.1 E47E   370   \n489733  Row543897  1546275870000  60000000046504      370.1 CH65   370   \n489734  Row543898  1546275870000  80000002767872    809 H182 V.1   800   \n489735  Row543899  1546284470000  80000004114631    658.0076 G51   650   \n489736  Row543900  1546286746000  80000005104167       833 Z83SN   830   \n\n         Ubicacion   Llave                               Programa  \\\n0       COL-GRAL-2  866245                CARRERA DE ARQUITECTURA   \n1       COL-GRAL-2  309945                CARRERA DE ARQUITECTURA   \n2       COL-GRAL-3  822727                CARRERA DE ARQUITECTURA   \n3       COL-GRAL-3  784541                CARRERA DE ARQUITECTURA   \n4       COL-GRAL-2  858473                CARRERA DE ARQUITECTURA   \n...            ...     ...                                    ...   \n489732  COL-GRAL-3  914491              CARRERA DE ARTES VISUALES   \n489733  COL-GRAL-3  747839              CARRERA DE ARTES VISUALES   \n489734  COL-GRAL-0  522997              CARRERA DE ARTES VISUALES   \n489735  COL-GRAL-2  743895  CARRERA DE RELACIONES INTERNACIONALES   \n489736  COL-GRAL-0  841120       MAESTRÍA EN ECONOMÍA DE LA SALUD   \n\n                                               Facultad  \\\n0                                 arquitectura y diseño   \n1                                 arquitectura y diseño   \n2                                 arquitectura y diseño   \n3                                 arquitectura y diseño   \n4                                 arquitectura y diseño   \n...                                                 ...   \n489732                                            artes   \n489733                                            artes   \n489734                                            artes   \n489735  ciencias políticas y relaciones internacionales   \n489736            ciencias económicas y administrativas   \n\n                                       IDUsuario  Year Signatura    TipoItem  \\\n0       c361c772cd0220bb16dcfb2ad803e4903334ab94  2019       720       LIBRO   \n1       c361c772cd0220bb16dcfb2ad803e4903334ab94  2019       720       LIBRO   \n2       87b0e5a61ed712ddfaf5d478ad68c87c825997e9  2019       540       LIBRO   \n3       87b0e5a61ed712ddfaf5d478ad68c87c825997e9  2019       512       LIBRO   \n4       afe8c17ba351d274fc5671978918f0c93032d88f  2019       712       LIBRO   \n...                                          ...   ...       ...         ...   \n489732  7544d4d6cf0b97aa221bcefdb69d3c8be2b4e2d4  2018       370       LIBRO   \n489733  7544d4d6cf0b97aa221bcefdb69d3c8be2b4e2d4  2018       370       LIBRO   \n489734  7544d4d6cf0b97aa221bcefdb69d3c8be2b4e2d4  2018       809       LIBRO   \n489735  9203547282e98eb313fa78461c3530828f04bb4b  2018       658       LIBRO   \n489736  052322d5b8657f7aac756808fe724ea96c272882  2018       833  LITERATURA   \n\n                                   Autor  \\\n0          Arango Cardinal, Silvia 1948-   \n1          Arango Cardinal, Silvia 1948-   \n2                         Chang, Raymond   \n3                     Baldor, J. Aurelio   \n4       Martínez de Pisón, Eduardo 1937-   \n...                                  ...   \n489732                 Eisner, Elliot W.   \n489733               Chomsky, Noam 1928-   \n489734          Hauser, Arnold 1892-1978   \n489735                              None   \n489736           Zweig, Stefan 1881-1942   \n\n                                                   Titulo  AnioPublicacion  \\\n0       Ciudad y arquitectura seis generaciones que co...           2012.0   \n1       Historia de la arquitectura en Colombia Silvia...           1993.0   \n2       Química Raymond Chang ; revisión técnica Rosa ...           2010.0   \n3       Álgebra con gráficos y 6523 ejercicios y probl...           2009.0   \n4       Miradas sobre el paisaje Eduardo Martínez de P...           2009.0   \n...                                                   ...              ...   \n489732  La escuela que necesitamos ensayos personales ...           2002.0   \n489733  La (des) educación Noam Chomsky ; edición e in...           2007.0   \n489734  Historia social de la literatura y el arte Arn...           1998.0   \n489735  GMAT premier program the staff of kaplan test ...           2007.0   \n489736  Noche fantástica Stefan Zweig ; traducción de ...           2009.0   \n\n       DeweyEspecifico                                          TemaDewey  \\\n0               720.98                       Arquitectura latinoamericana   \n1             720.9861                            Arquitectura colombiana   \n2                  540                                            Química   \n3                  512                                            Álgebra   \n4                  712                           Arquitectura del paisaje   \n...                ...                                                ...   \n489732           370.1                          Filosofía de la educación   \n489733           370.1                          Filosofía de la educación   \n489734             809             Literatura europea|xHistoria y crítica   \n489735        658.0076  Examen de admisión para graduados en administr...   \n489736             833                              Novela suiza (Alemán)   \n\n                                                  Temas  \\\n0                   [arquitectur, histori, amer, latin]   \n1             [arquitectur, colonial, histori, colombi]   \n2                                              [quimic]   \n3                                              [algebr]   \n4                                 [arquitectur, paisaj]   \n...                                                 ...   \n489732                            [filosofi, educacion]   \n489733                            [filosofi, educacion]   \n489734                                  [arte, histori]   \n489735  [exam, admision, gradu, administracion, empres]   \n489736                                [cuent, austriac]   \n\n                                            Union  \n0                  arquitectur histori amer latin  \n1            arquitectur colonial histori colombi  \n2                                          quimic  \n3                                          algebr  \n4                              arquitectur paisaj  \n...                                           ...  \n489732                         filosofi educacion  \n489733                         filosofi educacion  \n489734                               arte histori  \n489735  exam admision gradu administracion empres  \n489736                             cuent austriac  \n\n[489474 rows x 20 columns]",
+            "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>RowID</th>\n      <th>Fecha</th>\n      <th>IDItem</th>\n      <th>NumeroUbicacion</th>\n      <th>Dewey</th>\n      <th>Ubicacion</th>\n      <th>Llave</th>\n      <th>Programa</th>\n      <th>Facultad</th>\n      <th>IDUsuario</th>\n      <th>Year</th>\n      <th>Signatura</th>\n      <th>TipoItem</th>\n      <th>Autor</th>\n      <th>Titulo</th>\n      <th>AnioPublicacion</th>\n      <th>DeweyEspecifico</th>\n      <th>TemaDewey</th>\n      <th>Temas</th>\n      <th>Union</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>Row0</td>\n      <td>1547050497000</td>\n      <td>80000005327627</td>\n      <td>720.98 A71S</td>\n      <td>720</td>\n      <td>COL-GRAL-2</td>\n      <td>866245</td>\n      <td>CARRERA DE ARQUITECTURA</td>\n      <td>arquitectura y diseño</td>\n      <td>c361c772cd0220bb16dcfb2ad803e4903334ab94</td>\n      <td>2019</td>\n      <td>720</td>\n      <td>LIBRO</td>\n      <td>Arango Cardinal, Silvia 1948-</td>\n      <td>Ciudad y arquitectura seis generaciones que co...</td>\n      <td>2012.0</td>\n      <td>720.98</td>\n      <td>Arquitectura latinoamericana</td>\n      <td>[arquitectur, histori, amer, latin]</td>\n      <td>arquitectur histori amer latin</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>Row1</td>\n      <td>1547050500000</td>\n      <td>80000001191496</td>\n      <td>720.9861 A71</td>\n      <td>720</td>\n      <td>COL-GRAL-2</td>\n      <td>309945</td>\n      <td>CARRERA DE ARQUITECTURA</td>\n      <td>arquitectura y diseño</td>\n      <td>c361c772cd0220bb16dcfb2ad803e4903334ab94</td>\n      <td>2019</td>\n      <td>720</td>\n      <td>LIBRO</td>\n      <td>Arango Cardinal, Silvia 1948-</td>\n      <td>Historia de la arquitectura en Colombia Silvia...</td>\n      <td>1993.0</td>\n      <td>720.9861</td>\n      <td>Arquitectura colombiana</td>\n      <td>[arquitectur, colonial, histori, colombi]</td>\n      <td>arquitectur colonial histori colombi</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>Row2</td>\n      <td>1547138763000</td>\n      <td>80000004979759</td>\n      <td>540 CH15Q 2010</td>\n      <td>540</td>\n      <td>COL-GRAL-3</td>\n      <td>822727</td>\n      <td>CARRERA DE ARQUITECTURA</td>\n      <td>arquitectura y diseño</td>\n      <td>87b0e5a61ed712ddfaf5d478ad68c87c825997e9</td>\n      <td>2019</td>\n      <td>540</td>\n      <td>LIBRO</td>\n      <td>Chang, Raymond</td>\n      <td>Química Raymond Chang ; revisión técnica Rosa ...</td>\n      <td>2010.0</td>\n      <td>540</td>\n      <td>Química</td>\n      <td>[quimic]</td>\n      <td>quimic</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>Row3</td>\n      <td>1547138765000</td>\n      <td>80000004509512</td>\n      <td>512 B151</td>\n      <td>510</td>\n      <td>COL-GRAL-3</td>\n      <td>784541</td>\n      <td>CARRERA DE ARQUITECTURA</td>\n      <td>arquitectura y diseño</td>\n      <td>87b0e5a61ed712ddfaf5d478ad68c87c825997e9</td>\n      <td>2019</td>\n      <td>512</td>\n      <td>LIBRO</td>\n      <td>Baldor, J. Aurelio</td>\n      <td>Álgebra con gráficos y 6523 ejercicios y probl...</td>\n      <td>2009.0</td>\n      <td>512</td>\n      <td>Álgebra</td>\n      <td>[algebr]</td>\n      <td>algebr</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>Row4</td>\n      <td>1547300269000</td>\n      <td>80000005270756</td>\n      <td>712 M17E</td>\n      <td>710</td>\n      <td>COL-GRAL-2</td>\n      <td>858473</td>\n      <td>CARRERA DE ARQUITECTURA</td>\n      <td>arquitectura y diseño</td>\n      <td>afe8c17ba351d274fc5671978918f0c93032d88f</td>\n      <td>2019</td>\n      <td>712</td>\n      <td>LIBRO</td>\n      <td>Martínez de Pisón, Eduardo 1937-</td>\n      <td>Miradas sobre el paisaje Eduardo Martínez de P...</td>\n      <td>2009.0</td>\n      <td>712</td>\n      <td>Arquitectura del paisaje</td>\n      <td>[arquitectur, paisaj]</td>\n      <td>arquitectur paisaj</td>\n    </tr>\n    <tr>\n      <th>...</th>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n    </tr>\n    <tr>\n      <th>489732</th>\n      <td>Row543896</td>\n      <td>1546275870000</td>\n      <td>80000005573398</td>\n      <td>370.1 E47E</td>\n      <td>370</td>\n      <td>COL-GRAL-3</td>\n      <td>914491</td>\n      <td>CARRERA DE ARTES VISUALES</td>\n      <td>artes</td>\n      <td>7544d4d6cf0b97aa221bcefdb69d3c8be2b4e2d4</td>\n      <td>2018</td>\n      <td>370</td>\n      <td>LIBRO</td>\n      <td>Eisner, Elliot W.</td>\n      <td>La escuela que necesitamos ensayos personales ...</td>\n      <td>2002.0</td>\n      <td>370.1</td>\n      <td>Filosofía de la educación</td>\n      <td>[filosofi, educacion]</td>\n      <td>filosofi educacion</td>\n    </tr>\n    <tr>\n      <th>489733</th>\n      <td>Row543897</td>\n      <td>1546275870000</td>\n      <td>60000000046504</td>\n      <td>370.1 CH65</td>\n      <td>370</td>\n      <td>COL-GRAL-3</td>\n      <td>747839</td>\n      <td>CARRERA DE ARTES VISUALES</td>\n      <td>artes</td>\n      <td>7544d4d6cf0b97aa221bcefdb69d3c8be2b4e2d4</td>\n      <td>2018</td>\n      <td>370</td>\n      <td>LIBRO</td>\n      <td>Chomsky, Noam 1928-</td>\n      <td>La (des) educación Noam Chomsky ; edición e in...</td>\n      <td>2007.0</td>\n      <td>370.1</td>\n      <td>Filosofía de la educación</td>\n      <td>[filosofi, educacion]</td>\n      <td>filosofi educacion</td>\n    </tr>\n    <tr>\n      <th>489734</th>\n      <td>Row543898</td>\n      <td>1546275870000</td>\n      <td>80000002767872</td>\n      <td>809 H182 V.1</td>\n      <td>800</td>\n      <td>COL-GRAL-0</td>\n      <td>522997</td>\n      <td>CARRERA DE ARTES VISUALES</td>\n      <td>artes</td>\n      <td>7544d4d6cf0b97aa221bcefdb69d3c8be2b4e2d4</td>\n      <td>2018</td>\n      <td>809</td>\n      <td>LIBRO</td>\n      <td>Hauser, Arnold 1892-1978</td>\n      <td>Historia social de la literatura y el arte Arn...</td>\n      <td>1998.0</td>\n      <td>809</td>\n      <td>Literatura europea|xHistoria y crítica</td>\n      <td>[arte, histori]</td>\n      <td>arte histori</td>\n    </tr>\n    <tr>\n      <th>489735</th>\n      <td>Row543899</td>\n      <td>1546284470000</td>\n      <td>80000004114631</td>\n      <td>658.0076 G51</td>\n      <td>650</td>\n      <td>COL-GRAL-2</td>\n      <td>743895</td>\n      <td>CARRERA DE RELACIONES INTERNACIONALES</td>\n      <td>ciencias políticas y relaciones internacionales</td>\n      <td>9203547282e98eb313fa78461c3530828f04bb4b</td>\n      <td>2018</td>\n      <td>658</td>\n      <td>LIBRO</td>\n      <td>None</td>\n      <td>GMAT premier program the staff of kaplan test ...</td>\n      <td>2007.0</td>\n      <td>658.0076</td>\n      <td>Examen de admisión para graduados en administr...</td>\n      <td>[exam, admision, gradu, administracion, empres]</td>\n      <td>exam admision gradu administracion empres</td>\n    </tr>\n    <tr>\n      <th>489736</th>\n      <td>Row543900</td>\n      <td>1546286746000</td>\n      <td>80000005104167</td>\n      <td>833 Z83SN</td>\n      <td>830</td>\n      <td>COL-GRAL-0</td>\n      <td>841120</td>\n      <td>MAESTRÍA EN ECONOMÍA DE LA SALUD</td>\n      <td>ciencias económicas y administrativas</td>\n      <td>052322d5b8657f7aac756808fe724ea96c272882</td>\n      <td>2018</td>\n      <td>833</td>\n      <td>LITERATURA</td>\n      <td>Zweig, Stefan 1881-1942</td>\n      <td>Noche fantástica Stefan Zweig ; traducción de ...</td>\n      <td>2009.0</td>\n      <td>833</td>\n      <td>Novela suiza (Alemán)</td>\n      <td>[cuent, austriac]</td>\n      <td>cuent austriac</td>\n    </tr>\n  </tbody>\n</table>\n<p>489474 rows × 20 columns</p>\n</div>"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 39,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633394612454
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Dataframe de datos de material\n",
+        "df_temas = pd.read_json(basePath + 'a2wops7yxdjd2ea/Libros.json?dl=1')"
+      ],
+      "outputs": [],
+      "execution_count": 5,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633393369153
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Dataframe de pesos por los temas de cada cluster6\n",
+        "df_pesos_cluster_temas = pd.read_json(basePath + 'nbz30whibx2r67s/pesos_cluster_temas.json?dl=1')"
+      ],
+      "outputs": [],
+      "execution_count": 15,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633393912331
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Dataframe de pesos por los deweys de cada cluster\n",
+        "df_pesos_cluster_deweys = pd.read_json(basePath + 'f5ixzg087pd8gca/pesos_cluster_deweys.json?dl=1')"
+      ],
+      "outputs": [],
+      "execution_count": 16,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633393915154
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# Funciones auxiliares"
+      ],
+      "metadata": {
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#Para obtener el nombre de un material a partir del título\n",
+        "def itemIdToMaterial(id):\n",
+        "    return df_prestamos.loc[df_prestamos['Llave'] == id]['Titulo'].unique()"
+      ],
+      "outputs": [],
+      "execution_count": 40,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633394662259
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def itemIdToDewey(id):\n",
+        "    item = (df_prestamos.loc[df_prestamos['Llave'] == id]['Dewey'].unique())\n",
+        "    if len(item) == 0:\n",
+        "        return  (df_prestamos.loc[df_prestamos['Llave'] == str(id)]['Dewey'].unique())[0]\n",
+        "    else:\n",
+        "        return item[0]"
+      ],
+      "outputs": [],
+      "execution_count": 41,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633394662597
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def itemIdToThemes(id):\n",
+        "    tematicas = df_temas.loc[df_temas['Llaves'] == str(id)]['Tema 670'].values\n",
+        "    if len(tematicas) == 0:\n",
+        "        return []\n",
+        "    else:\n",
+        "        return tematicas"
+      ],
+      "outputs": [],
+      "execution_count": 42,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633394663907
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def generateClusterInfo(cluster_eval):\n",
+        "    dfP = df_pesos_cluster_temas.copy()\n",
+        "    user_p = dfP.loc[dfP['cluster'] == cluster_eval]\n",
+        "    tematicas =[]\n",
+        "    for llave in user_p['Llaves'].unique():\n",
+        "        tematicas.append(itemIdToThemes((llave)))\n",
+        "\n",
+        "    user_p['Tematicas'] = tematicas\n",
+        "    display(user_p)\n",
+        "    deweys = ((dfP.loc[dfP['cluster'] == cluster_eval]['Dewey'].unique()))\n",
+        "    print((dfP.loc[dfP['cluster'] == cluster_eval]['Dewey'].unique()))\n",
+        "\n",
+        "    tematicas = []\n",
+        "    for tems in user_p['Tematicas']:\n",
+        "        for tema in tems:\n",
+        "            for temasub in tema:\n",
+        "                if temasub in tematicas:\n",
+        "                    continue\n",
+        "                else:\n",
+        "                    tematicas.append(temasub)\n",
+        "\n",
+        "    return user_p, deweys, set(tematicas)"
+      ],
+      "outputs": [],
+      "execution_count": 43,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633394664416
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def generateRecsInfopreds(preds):\n",
+        "    recs = preds\n",
+        "    data_recs_asr = []\n",
+        "    for ids in recs:\n",
+        "        data_recs_asr.append({'Titulo':itemIdToMaterial(ids), \n",
+        "                         #'Rating':ratings[1], \n",
+        "                          'Dewey':itemIdToDewey(ids), \n",
+        "                         'Tematicas':itemIdToThemes(ids),\n",
+        "                          'Llave': ids})\n",
+        "\n",
+        "    df_recs_asr = pd.DataFrame(data_recs_asr)\n",
+        "    display(df_recs_asr)\n",
+        "    deweys = print((df_recs_asr['Dewey'].unique()))\n",
+        "    print((df_recs_asr['Dewey'].unique()))\n",
+        "\n",
+        "    tematicas = []\n",
+        "    for tems in df_recs_asr['Tematicas']:\n",
+        "        for tema in tems:\n",
+        "            for temasub in tema:\n",
+        "                if temasub in tematicas:\n",
+        "                    continue\n",
+        "                else:\n",
+        "                    tematicas.append(temasub)\n",
+        "\n",
+        "    return df_recs_asr, deweys, set(tematicas)"
+      ],
+      "outputs": [],
+      "execution_count": 44,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633394665439
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Compara las tematicas de los ítems recomendados con respecto a los prestamos que ha realizado el cluster\n",
+        "def compare_recs(setRecs, setPrest):\n",
+        "    difference = setRecs - setPrest\n",
+        "    intersection = setRecs & setPrest\n",
+        "    print(\"Diferencia: \", difference)\n",
+        "    print(\"Intersección: \", intersection)\n",
+        "    return difference, intersection"
+      ],
+      "outputs": [],
+      "execution_count": 45,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633394667262
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df_info_clus, df_clus_deweys, df_clus_tems = generateClusterInfo(CLUSTER_EVAL)"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": "/anaconda/envs/reco_gpu/lib/python3.7/site-packages/ipykernel_launcher.py:8: SettingWithCopyWarning: \nA value is trying to be set on a copy of a slice from a DataFrame.\nTry using .loc[row_indexer,col_indexer] = value instead\n\nSee the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy\n  \n"
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": "        Llaves  cluster Dewey  Peso del prestamos  timestamp  \\\n1692    255776       92   190               0.250 2018-08-03   \n1695    255779       92   190               0.250 2019-03-19   \n1701    255783       92   800               0.250 2019-02-13   \n1850    256000       92   190               0.125 2019-05-22   \n1864    256034       92   130               0.125 2018-11-08   \n...        ...      ...   ...                 ...        ...   \n179612  885340       92   840               1.000 2019-11-19   \n179635  885617       92   840               0.500 2019-01-21   \n182378  908913       92   270               0.250 2019-01-21   \n183156  915537       92   110               0.750 2019-02-06   \n184382  922339       92   190               0.750 2019-03-25   \n\n                                         Tematicas  \n1692                                            []  \n1695                        [[filosofía, francés]]  \n1701                         [[literatura, moral]]  \n1850    [[filosofía, alemán], [filosofía, alemán]]  \n1864                                            []  \n...                                            ...  \n179612                         [[poesía, francés]]  \n179635                         [[cuento, francés]]  \n182378                  [[cristianismo, historia]]  \n183156                   [[filosofía, naturaleza]]  \n184382                      [[filosofía, francés]]  \n\n[364 rows x 6 columns]",
+            "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Llaves</th>\n      <th>cluster</th>\n      <th>Dewey</th>\n      <th>Peso del prestamos</th>\n      <th>timestamp</th>\n      <th>Tematicas</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>1692</th>\n      <td>255776</td>\n      <td>92</td>\n      <td>190</td>\n      <td>0.250</td>\n      <td>2018-08-03</td>\n      <td>[]</td>\n    </tr>\n    <tr>\n      <th>1695</th>\n      <td>255779</td>\n      <td>92</td>\n      <td>190</td>\n      <td>0.250</td>\n      <td>2019-03-19</td>\n      <td>[[filosofía, francés]]</td>\n    </tr>\n    <tr>\n      <th>1701</th>\n      <td>255783</td>\n      <td>92</td>\n      <td>800</td>\n      <td>0.250</td>\n      <td>2019-02-13</td>\n      <td>[[literatura, moral]]</td>\n    </tr>\n    <tr>\n      <th>1850</th>\n      <td>256000</td>\n      <td>92</td>\n      <td>190</td>\n      <td>0.125</td>\n      <td>2019-05-22</td>\n      <td>[[filosofía, alemán], [filosofía, alemán]]</td>\n    </tr>\n    <tr>\n      <th>1864</th>\n      <td>256034</td>\n      <td>92</td>\n      <td>130</td>\n      <td>0.125</td>\n      <td>2018-11-08</td>\n      <td>[]</td>\n    </tr>\n    <tr>\n      <th>...</th>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n      <td>...</td>\n    </tr>\n    <tr>\n      <th>179612</th>\n      <td>885340</td>\n      <td>92</td>\n      <td>840</td>\n      <td>1.000</td>\n      <td>2019-11-19</td>\n      <td>[[poesía, francés]]</td>\n    </tr>\n    <tr>\n      <th>179635</th>\n      <td>885617</td>\n      <td>92</td>\n      <td>840</td>\n      <td>0.500</td>\n      <td>2019-01-21</td>\n      <td>[[cuento, francés]]</td>\n    </tr>\n    <tr>\n      <th>182378</th>\n      <td>908913</td>\n      <td>92</td>\n      <td>270</td>\n      <td>0.250</td>\n      <td>2019-01-21</td>\n      <td>[[cristianismo, historia]]</td>\n    </tr>\n    <tr>\n      <th>183156</th>\n      <td>915537</td>\n      <td>92</td>\n      <td>110</td>\n      <td>0.750</td>\n      <td>2019-02-06</td>\n      <td>[[filosofía, naturaleza]]</td>\n    </tr>\n    <tr>\n      <th>184382</th>\n      <td>922339</td>\n      <td>92</td>\n      <td>190</td>\n      <td>0.750</td>\n      <td>2019-03-25</td>\n      <td>[[filosofía, francés]]</td>\n    </tr>\n  </tbody>\n</table>\n<p>364 rows × 6 columns</p>\n</div>"
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "['190' '800' '130' '880' '740' '110' '140' '180' '840' '260' '710' '810'\n '720' '860' '330' '920' '400' '750' '150' '890' '370' '820' '300' '320'\n '780' '170' '520' '590' '20' '500' '120' '830' '0' '460' 'Video' '700'\n '570' '900' '580' '850' '440' '270' '340' '610' '980']\n"
+        }
+      ],
+      "execution_count": 23,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633393923247
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# Modelos"
+      ],
+      "metadata": {
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## SAR"
+      ],
+      "metadata": {
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "sar_model_path = basePath + \"5brcaex6fdqs3yc/sar_predictor_temas_100k_10011910.pkl?dl=1\""
+      ],
+      "outputs": [],
+      "execution_count": 24,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633393934347
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "with gzip.open(urllib.request.urlopen(sar_model_path), 'rb') as f:\n",
+        "    p = pickle.Unpickler(f)\n",
+        "    sar_predictor = p.load()"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": "/anaconda/envs/reco_gpu/lib/python3.7/site-packages/papermill/iorw.py:50: FutureWarning: pyarrow.HadoopFileSystem is deprecated as of 2.0.0, please use pyarrow.fs.HadoopFileSystem instead.\n  from pyarrow import HadoopFileSystem\n"
+        }
+      ],
+      "execution_count": 35,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633394271288
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "sar_preds = sar_predictor.predict_for_cluster(cluster=CLUSTER_EVAL)"
+      ],
+      "outputs": [],
+      "execution_count": 37,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633394532405
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df_info_pred_sar, df_pred_sar_deweys, df_pred_sar_tems = generateRecsInfopreds(sar_preds)"
+      ],
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": "                                              Titulo Dewey  \\\n0  [Entre nosotros ensayos para pensar en otro Em...   190   \n1  [La filosofía de Martín Heidegger Alfonso de W...   190   \n2  [Deleuze, Whitehead, Bergson rhizomatic connec...   190   \n3                          [Deshoras Julio Cortázar]   860   \n4  [Rizoma introducción Gilles Deleuze y Pierre F...   190   \n5  [Memorias del subsuelo Fédor Mikhailovitch Dos...   890   \n6            [Compendio de psicología William James]   150   \n7  [Obras filosoficas Discurso del metodo, Tratad...   190   \n8                  [Gilles Deleuze Claire Colebrook]   190   \n9  [El multiculturalismo y \"la política del recon...   300   \n\n                Tematicas   Llave  \n0  [[filosofía, francés]]  341300  \n1   [[filosofía, alemán]]  271907  \n2  [[filosofía, francés]]  795173  \n3   [[cuento, argentino]]  678233  \n4  [[filosofía, francés]]  341323  \n5        [[novela, ruso]]  725775  \n6          [[psicología]]  330489  \n7  [[filosofía, francés]]  272620  \n8  [[filosofía, francés]]  797150  \n9   [[multiculturalismo]]  347754  ",
+            "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Titulo</th>\n      <th>Dewey</th>\n      <th>Tematicas</th>\n      <th>Llave</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>[Entre nosotros ensayos para pensar en otro Em...</td>\n      <td>190</td>\n      <td>[[filosofía, francés]]</td>\n      <td>341300</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>[La filosofía de Martín Heidegger Alfonso de W...</td>\n      <td>190</td>\n      <td>[[filosofía, alemán]]</td>\n      <td>271907</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>[Deleuze, Whitehead, Bergson rhizomatic connec...</td>\n      <td>190</td>\n      <td>[[filosofía, francés]]</td>\n      <td>795173</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>[Deshoras Julio Cortázar]</td>\n      <td>860</td>\n      <td>[[cuento, argentino]]</td>\n      <td>678233</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>[Rizoma introducción Gilles Deleuze y Pierre F...</td>\n      <td>190</td>\n      <td>[[filosofía, francés]]</td>\n      <td>341323</td>\n    </tr>\n    <tr>\n      <th>5</th>\n      <td>[Memorias del subsuelo Fédor Mikhailovitch Dos...</td>\n      <td>890</td>\n      <td>[[novela, ruso]]</td>\n      <td>725775</td>\n    </tr>\n    <tr>\n      <th>6</th>\n      <td>[Compendio de psicología William James]</td>\n      <td>150</td>\n      <td>[[psicología]]</td>\n      <td>330489</td>\n    </tr>\n    <tr>\n      <th>7</th>\n      <td>[Obras filosoficas Discurso del metodo, Tratad...</td>\n      <td>190</td>\n      <td>[[filosofía, francés]]</td>\n      <td>272620</td>\n    </tr>\n    <tr>\n      <th>8</th>\n      <td>[Gilles Deleuze Claire Colebrook]</td>\n      <td>190</td>\n      <td>[[filosofía, francés]]</td>\n      <td>797150</td>\n    </tr>\n    <tr>\n      <th>9</th>\n      <td>[El multiculturalismo y \"la política del recon...</td>\n      <td>300</td>\n      <td>[[multiculturalismo]]</td>\n      <td>347754</td>\n    </tr>\n  </tbody>\n</table>\n</div>"
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "['190' '860' '890' '150' '300']\n['190' '860' '890' '150' '300']\n"
+        }
+      ],
+      "execution_count": 46,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633394672213
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "compare_recs(df_pred_sar_tems, df_clus_tems)"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Diferencia:  set()\nIntersección:  {'alemán', 'multiculturalismo', 'psicología', 'filosofía', 'novela', 'francés', 'cuento', 'ruso', 'argentino'}\n"
+        },
+        {
+          "output_type": "execute_result",
+          "execution_count": 47,
+          "data": {
+            "text/plain": "(set(),\n {'alemán',\n  'argentino',\n  'cuento',\n  'filosofía',\n  'francés',\n  'multiculturalismo',\n  'novela',\n  'psicología',\n  'ruso'})"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 47,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633394678300
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Content Based"
+      ],
+      "metadata": {
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "content_model_path = basePath + \"jejvttr9i0xfl2w/content_predictor_temas_60k_10012110.pkl?dl=1\""
+      ],
+      "outputs": [],
+      "execution_count": 53,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633395398935
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "with gzip.open(urllib.request.urlopen(content_model_path), 'rb') as f:\n",
+        "    p = pickle.Unpickler(f)\n",
+        "    content_predictor = p.load()"
+      ],
+      "outputs": [],
+      "execution_count": 54,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633395427465
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "content_preds = content_predictor.predict_for_cluster(cluster=CLUSTER_EVAL)"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "1\n\nUsando el recomendador:  ContentKNN\nComputing recommendations...\n"
+        }
+      ],
+      "execution_count": 55,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633395430664
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df_info_content_sar, df_pred_content_deweys, df_pred_content_tems = generateRecsInfopreds(content_preds)"
+      ],
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": "                                              Titulo Dewey  \\\n0  [La situación en el mundo un informe del World...   330   \n1  [Experiencia e historia escritos de juventud F...   190   \n2     [Historia de la lengua española Rafael Lapesa]   460   \n3  [Desmovilizar a los paramilitares en Colombia ...   320   \n4  [Teoría de juegos una introducción no técnica ...   510   \n5  [Manual de urbanidad y buenas maneras de consu...   390   \n6      [Les chants de maldoror Comte de Lautreamont]   840   \n7  [Guerras justas e injustas un razonamiento mor...   350   \n8            [Clinical nutrición Victoria F. Thiele]   610   \n9  [Entre nosotros ensayos para pensar en otro Em...   190   \n\n                            Tematicas   Llave  \n0                                  []  342352  \n1                                  []  350219  \n2               [[español, historia]]  275733  \n3           [[paramilitar, colombia]]  677027  \n4                  [[teoría, juegos]]  266159  \n5                                  []  318787  \n6                 [[poesía, francés]]  346966  \n7  [[guerrar, aspecto, moral, ético]]  635877  \n8                                  []  264237  \n9              [[filosofía, francés]]  341300  ",
+            "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Titulo</th>\n      <th>Dewey</th>\n      <th>Tematicas</th>\n      <th>Llave</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>[La situación en el mundo un informe del World...</td>\n      <td>330</td>\n      <td>[]</td>\n      <td>342352</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>[Experiencia e historia escritos de juventud F...</td>\n      <td>190</td>\n      <td>[]</td>\n      <td>350219</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>[Historia de la lengua española Rafael Lapesa]</td>\n      <td>460</td>\n      <td>[[español, historia]]</td>\n      <td>275733</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>[Desmovilizar a los paramilitares en Colombia ...</td>\n      <td>320</td>\n      <td>[[paramilitar, colombia]]</td>\n      <td>677027</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>[Teoría de juegos una introducción no técnica ...</td>\n      <td>510</td>\n      <td>[[teoría, juegos]]</td>\n      <td>266159</td>\n    </tr>\n    <tr>\n      <th>5</th>\n      <td>[Manual de urbanidad y buenas maneras de consu...</td>\n      <td>390</td>\n      <td>[]</td>\n      <td>318787</td>\n    </tr>\n    <tr>\n      <th>6</th>\n      <td>[Les chants de maldoror Comte de Lautreamont]</td>\n      <td>840</td>\n      <td>[[poesía, francés]]</td>\n      <td>346966</td>\n    </tr>\n    <tr>\n      <th>7</th>\n      <td>[Guerras justas e injustas un razonamiento mor...</td>\n      <td>350</td>\n      <td>[[guerrar, aspecto, moral, ético]]</td>\n      <td>635877</td>\n    </tr>\n    <tr>\n      <th>8</th>\n      <td>[Clinical nutrición Victoria F. Thiele]</td>\n      <td>610</td>\n      <td>[]</td>\n      <td>264237</td>\n    </tr>\n    <tr>\n      <th>9</th>\n      <td>[Entre nosotros ensayos para pensar en otro Em...</td>\n      <td>190</td>\n      <td>[[filosofía, francés]]</td>\n      <td>341300</td>\n    </tr>\n  </tbody>\n</table>\n</div>"
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "['330' '190' '460' '320' '510' '390' '840' '350' '610']\n['330' '190' '460' '320' '510' '390' '840' '350' '610']\n"
+        }
+      ],
+      "execution_count": 56,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633395431351
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "compare_recs(df_pred_content_tems, df_clus_tems)"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Diferencia:  {'guerrar', 'paramilitar', 'juegos', 'teoría'}\nIntersección:  {'moral', 'aspecto', 'poesía', 'español', 'francés', 'historia', 'colombia', 'ético', 'filosofía'}\n"
+        },
+        {
+          "output_type": "execute_result",
+          "execution_count": 57,
+          "data": {
+            "text/plain": "({'guerrar', 'juegos', 'paramilitar', 'teoría'},\n {'aspecto',\n  'colombia',\n  'español',\n  'filosofía',\n  'francés',\n  'historia',\n  'moral',\n  'poesía',\n  'ético'})"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 57,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633395431449
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## SVD"
+      ],
+      "metadata": {
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "svd_model_path = basePath + \"x6kp4sm4rnu7h7y/svd_predictor100k_10012010.pkl?dl=1\""
+      ],
+      "outputs": [],
+      "execution_count": 58,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633395431661
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "with gzip.open(urllib.request.urlopen(svd_model_path), 'rb') as f:\n",
+        "    p = pickle.Unpickler(f)\n",
+        "    svd_predictor = p.load()"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "System version: 3.7.11 (default, Jul 27 2021, 14:32:16) \n[GCC 7.5.0]\nSurprise version: 1.1.1\n"
+        }
+      ],
+      "execution_count": 59,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633395439715
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "svd_preds = svd_predictor.predict_for_cluster(cluster=CLUSTER_EVAL)"
+      ],
+      "outputs": [],
+      "execution_count": 60,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633395439802
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df_info_svd_sar, df_pred_svd_deweys, df_pred_svd_tems = generateRecsInfopreds(svd_preds)"
+      ],
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": "                                              Titulo Dewey  \\\n0           [Neuroanatomía clínica Richard S. Snell]   610   \n1  [Microbiología de las infecciones humanas edit...   610   \n2                [El embrujo de Shanghái Juan Marsé]   860   \n3  [New critical legal thinking law and the polit...   340   \n4  [Convivir con tu embarazo y con tu bebé Franci...   610   \n5  [La evaluación de la acción y de las políticas...   350   \n6  [Hacia una sociología del discurso pedagogico ...   370   \n7  [Las claves del ensayo Fernando Vásquez Rodríg...   800   \n8  [Reglamento colombiano de construcción sismo r...   690   \n9  [Introducción a la macroeconomía colombiana Co...   330   \n\n                                           Tematicas   Llave  \n0                                  [[neuroanatomía]]  801231  \n1                          [[microbiología, médico]]  725351  \n2                                [[novela, español]]  855109  \n3                      [[estudio, crítico, derecho]]  861995  \n4                                                 []  833865  \n5                  [[política, público, evaluación]]  718174  \n6                               [[sociolingüístico]]  534834  \n7                                [[ensayo, técnico]]  918213  \n8  [[construcción, antisísmica, norma, técnico], ...  919896  \n9                        [[macroeconomía, colombia]]  345661  ",
+            "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Titulo</th>\n      <th>Dewey</th>\n      <th>Tematicas</th>\n      <th>Llave</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>[Neuroanatomía clínica Richard S. Snell]</td>\n      <td>610</td>\n      <td>[[neuroanatomía]]</td>\n      <td>801231</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>[Microbiología de las infecciones humanas edit...</td>\n      <td>610</td>\n      <td>[[microbiología, médico]]</td>\n      <td>725351</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>[El embrujo de Shanghái Juan Marsé]</td>\n      <td>860</td>\n      <td>[[novela, español]]</td>\n      <td>855109</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>[New critical legal thinking law and the polit...</td>\n      <td>340</td>\n      <td>[[estudio, crítico, derecho]]</td>\n      <td>861995</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>[Convivir con tu embarazo y con tu bebé Franci...</td>\n      <td>610</td>\n      <td>[]</td>\n      <td>833865</td>\n    </tr>\n    <tr>\n      <th>5</th>\n      <td>[La evaluación de la acción y de las políticas...</td>\n      <td>350</td>\n      <td>[[política, público, evaluación]]</td>\n      <td>718174</td>\n    </tr>\n    <tr>\n      <th>6</th>\n      <td>[Hacia una sociología del discurso pedagogico ...</td>\n      <td>370</td>\n      <td>[[sociolingüístico]]</td>\n      <td>534834</td>\n    </tr>\n    <tr>\n      <th>7</th>\n      <td>[Las claves del ensayo Fernando Vásquez Rodríg...</td>\n      <td>800</td>\n      <td>[[ensayo, técnico]]</td>\n      <td>918213</td>\n    </tr>\n    <tr>\n      <th>8</th>\n      <td>[Reglamento colombiano de construcción sismo r...</td>\n      <td>690</td>\n      <td>[[construcción, antisísmica, norma, técnico], ...</td>\n      <td>919896</td>\n    </tr>\n    <tr>\n      <th>9</th>\n      <td>[Introducción a la macroeconomía colombiana Co...</td>\n      <td>330</td>\n      <td>[[macroeconomía, colombia]]</td>\n      <td>345661</td>\n    </tr>\n  </tbody>\n</table>\n</div>"
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "['610' '860' '340' '350' '370' '800' '690' '330']\n['610' '860' '340' '350' '370' '800' '690' '330']\n"
+        }
+      ],
+      "execution_count": 61,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633395440414
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "compare_recs(df_pred_svd_tems, df_clus_tems)"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Diferencia:  {'evaluación', 'antisísmica', 'público', 'construcción', 'derecho', 'microbiología', 'médico', 'economía', 'macroeconomía', 'estudio', 'norma', 'neuroanatomía', 'política', 'sociolingüístico'}\nIntersección:  {'ensayo', 'español', 'novela', 'crítico', 'colombia', 'técnico', 'ética'}\n"
+        },
+        {
+          "output_type": "execute_result",
+          "execution_count": 62,
+          "data": {
+            "text/plain": "({'antisísmica',\n  'construcción',\n  'derecho',\n  'economía',\n  'estudio',\n  'evaluación',\n  'macroeconomía',\n  'microbiología',\n  'médico',\n  'neuroanatomía',\n  'norma',\n  'política',\n  'público',\n  'sociolingüístico'},\n {'colombia', 'crítico', 'ensayo', 'español', 'novela', 'técnico', 'ética'})"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 62,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1633395440538
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "reco_gpu",
+      "language": "python",
+      "display_name": "Python (reco_gpu)"
+    },
+    "language_info": {
+      "name": "python",
+      "version": "3.7.11",
+      "mimetype": "text/x-python",
+      "codemirror_mode": {
+        "name": "ipython",
+        "version": 3
+      },
+      "pygments_lexer": "ipython3",
+      "nbconvert_exporter": "python",
+      "file_extension": ".py"
+    },
+    "kernel_info": {
+      "name": "reco_gpu"
+    },
+    "nteract": {
+      "version": "nteract-front-end@1.0.0"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 2
+}
