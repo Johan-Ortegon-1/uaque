@@ -253,5 +253,13 @@ class Recomendaciones:
         self.recomendaciones_finales = pd.concat([self.recomendaciones_finales, self.recomendaciones_bc], ignore_index = True)
 
 
-    def exportarModelos(self):
+    def recomendaciones_completas:
+        info_libros = join[['Llave', 'DeweyUnidad', 'Titulo']].drop_duplicates(subset=['Llave'])
+        recomendaciones_completas = recomendaciones_finales.merge(info_libros, on='Llave',how='inner')#, rsuffix='_right', lsuffix='_left')
+        column_names = ["IDUsuario", "Llave", "Nivel", "Pertenencia"]
+        recomendaciones_completas.to_json(r'C:\Users\user\Downloads\recomedaciones_completas.json')
+   
+        
+    def exportarRecomendaciones(self):
         self.recomendaciones_finales.to_json(r'/Users/juansebastianangaritatorres/Downloads/recomedaciones_finales.json')
+        
