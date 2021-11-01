@@ -54,43 +54,44 @@ class SarRecommeder():
 
         toSurprisedb = pd.DataFrame(columns=['userID', 'itemID', 'rating'])
 
-        toSurprisedb['userID'] = dfP['cluster']
+        toSurprisedb['userID'] = dfP['cluster'].astype('int')
 
-        toSurprisedb['itemID'] = dfP['Llaves']
+        toSurprisedb['itemID'] = dfP['Llaves'].astype('int')
 
         maxRat = dfP['Peso del prestamos'].max()
-        mappedWeights = dfP['Peso del prestamos'].map(lambda x: interp(x, [0, maxRat], [0, scale]))
+        mappedWeights = dfP['Peso del prestamos'].map(lambda x: interp(x, [0, maxRat], [3.7, scale]))
         toSurprisedb['rating'] = mappedWeights
-        toSurprisedb['timestamp'] = dfP['timestamp'].map(lambda x: x.timestamp())
-
+#         toSurprisedb['timestamp'] = dfP['timestamp'].map(lambda x: x.timestamp())
+        toSurprisedb['timestamp'] = dfP['timestamp']
         return toSurprisedb
 
     def fit(self):
         self.model.fit(self.train)
         
     def predict(self):
-        self.model.recommend_k_items(self.test, remove_seen = False)
+        self.top_k = self.model.recommend_k_items(self.test, remove_seen = False)
+        return self.top_k
 
-    def evaluate_model(self, top_k):
-        eval_map = map_at_k(self.test, top_k, col_user='userID', col_item='itemID', col_rating='rating', k=self.TOP_K)
-        eval_ndcg = ndcg_at_k(self.test, top_k, col_user='userID', col_item='itemID', col_rating='rating', k=self.TOP_K)
-        eval_precision = precision_at_k(self.test, top_k, col_user='userID', col_item='itemID', col_rating='rating', k=self.TOP_K)
-        eval_recall = recall_at_k(self.test, top_k, col_user='userID', col_item='itemID', col_rating='rating', k=self.TOP_K)
-        eval_rmse = rmse(self.test, top_k, col_user='userID', col_item='itemID', col_rating='rating')
-        eval_mae = mae(self.test, top_k, col_user='userID', col_item='itemID', col_rating='rating')
-        eval_rsquared = rsquared(self.test, top_k, col_user='userID', col_item='itemID', col_rating='rating')
-        eval_exp_var = exp_var(self.test, top_k, col_user='userID', col_item='itemID', col_rating='rating')
+    def evaluate_model(self):
+        eval_map = map_at_k(self.test, self.top_k, col_user='userID', col_item='itemID', col_rating='rating', k=self.TOP_K)
+        eval_ndcg = ndcg_at_k(self.test, self.top_k, col_user='userID', col_item='itemID', col_rating='rating', k=self.TOP_K)
+        eval_precision = precision_at_k(self.test, self.top_k, col_user='userID', col_item='itemID', col_rating='rating', k=self.TOP_K)
+        eval_recall = recall_at_k(self.test, self.top_k, col_user='userID', col_item='itemID', col_rating='rating', k=self.TOP_K)
+        eval_rmse = rmse(self.test, self.top_k, col_user='userID', col_item='itemID', col_rating='rating')
+        eval_mae = mae(self.test, self.top_k, col_user='userID', col_item='itemID', col_rating='rating')
+        eval_rsquared = rsquared(self.test, self.top_k, col_user='userID', col_item='itemID', col_rating='rating')
+        eval_exp_var = exp_var(self.test, self.top_k, col_user='userID', col_item='itemID', col_rating='rating')
 
         positivity_threshold = 2
         test_bin = self.test.copy()
         test_bin['rating'] = binarize(test_bin['rating'], positivity_threshold)
 
-        top_k_prob = top_k.copy()
+        top_k_prob = self.top_k.copy()
         top_k_prob['prediction'] = minmax_scale(
             top_k_prob['prediction'].astype(float)
         )
 
-        eval_logloss = logloss(test_bin, top_k_prob, col_user='userID', col_item='itemID', col_rating='rating')
+#         eval_logloss = logloss(test_bin, top_k_prob, col_user='userID', col_item='itemID', col_rating='rating')
 
         print("Model:\t",
               "Top K:\t%d" % self.TOP_K,
@@ -102,7 +103,7 @@ class SarRecommeder():
               "MAE:\t%f" % eval_mae,
               "R2:\t%f" % eval_rsquared,
               "Exp var:\t%f" % eval_exp_var,
-              "Logloss:\t%f" % eval_logloss,
+#               "Logloss:\t%f" % eval_logloss,
               sep='\n')
 
     def predict_for_cluster(self, cluster):
@@ -112,7 +113,7 @@ class SarRecommeder():
 
     def export_model(self):
         now_time = time.strftime("%m%d%H%m")
-        filepath = "../Models/sar_trained_model_"+str(self.n)+"_"+now_time+".pkl"
+        filepath = "./sar_trained_model_"+str(self.n)+"_"+now_time+".pkl"
         with gzip.open(filepath, "wb") as f:
             pickled = pickle.dumps(self.model, protocol=4)
             optimized_pickle = pickletools.optimize(pickled)

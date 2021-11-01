@@ -64,7 +64,7 @@ class SVDRecommender():
         maxRat = data['rating'].max()
         mappedWeights = data['rating'].map(lambda x: interp(x,[0, maxRat],[0, scale]))
         data['rating'] = mappedWeights
-        data.drop('Dewey', inplace=True, axis=1)
+#         data.drop('Dewey', inplace=True, axis=1)
         data.drop('timestamp', inplace=True, axis=1)
         return data
 
