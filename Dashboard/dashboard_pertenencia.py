@@ -19,9 +19,9 @@ Importacion de datos
 
 
 #traer tabla con: IDUsuario, DeweyUnidad, Titulo, Llave que fueron recomendados a los usuarios
-recomendaciones_completas: pd.DataFrame = pd.DataFrame(pd.read_json('https://www.dropbox.com/s/pqqi798aor04x6s/recomedaciones_completas.json?dl=1'))
+recomendaciones_completas: pd.DataFrame = pd.DataFrame(pd.read_json('https://www.dropbox.com/s/0a9rcgbg8fmsbjt/recomedaciones_completas2.json?dl=1'))
 #Traer pesos de los usuarios (suman 1)
-pesos_usuario: pd.DataFrame = pd.DataFrame(pd.read_json('https://www.dropbox.com/s/voqnwdzt8cwyr7u/pesos_norm_id_unidad.json?dl=1'))
+pesos_usuario: pd.DataFrame = pd.DataFrame(pd.read_json('https://www.dropbox.com/s/ofoevb2xjp859vi/pesos_norm_id_unidad2.json?dl=1'))
 
 """
 Creacion de labels para los dropdowns
