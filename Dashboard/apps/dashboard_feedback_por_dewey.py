@@ -4,31 +4,37 @@
 Dashboard that shows user groups with percentages
 and recommended books
 '''
-import dash
 from dash import dcc, html
 import plotly.express as px
 import pandas as pd
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
-
-app = dash.Dash(__name__)
+from app import app
+from .joinTablas import joinTablas
+from .feedbacks import feedbacks
 """
 Importacion de datos
 """
 
-#Traemos los feedbacks de los usuarios con sus recomendaciones
-feedbacks: pd.DataFrame = pd.DataFrame(pd.read_json('https://www.dropbox.com/s/fn2o86tbrplkjpd/recomedaciones_finalesMasFeedback.json?dl=1'))
-feedbacks = feedbacks[['IDUsuario', 'Calificacion']]
+all_deweys: pd.DataFrame = joinTablas
+all_deweys = all_deweys[['DeweyUnidad', 'Llave']]
+all_deweys = pd.DataFrame(all_deweys.drop_duplicates())
 
-reviewed_books = pd.DataFrame(feedbacks)
+#Traemos los feedbacks de los usuarios con sus recomendaciones
+feedbacks: pd.DataFrame =  feedbacks
+feedbacks = feedbacks[['IDUsuario', 'Calificacion', 'Llave']]
+
+#Join entre las dos tablas desde la Llave del libro
+reviewed_books: pd.DataFrame = feedbacks.merge(all_deweys, on='Llave', suffixes=('_feedback', '_all_deweys'))
+reviewed_books = pd.DataFrame( reviewed_books.drop_duplicates(subset=['IDUsuario', 'Llave', 'Calificacion']))
 
 id_users = [{"label": x, "value": x } for x in reviewed_books["IDUsuario"].unique()]
 
 """
 HTML
 """
-app.layout = html.Div(children=[
-    html.H1(children='UAQUE: Feedback de los usuarios individuales'),
+layout = html.Div(children=[
+    html.H1(children='UAQUE: Feedback de los usuarios individuales en cada Dewey'),
 
     html.Div(
         dcc.Dropdown(
@@ -41,7 +47,7 @@ app.layout = html.Div(children=[
     ),
 
     dcc.Graph(
-        id='feedback_graph',
+        id='feedback_dewey_graph',
     ),
 
 ])
@@ -62,17 +68,21 @@ Update graph based on
 user list value
 '''
 @app.callback(
-    Output("feedback_graph", "figure"),
+    Output("feedback_dewey_graph", "figure"),
     [Input("users_id_dropdown", "value")],
 )
 
 def update_graph(id_user):
     selected_row: pd.DataFrame  = reviewed_books.loc[(reviewed_books['IDUsuario'] == id_user) ]
-    print(selected_row)
-    scores = selected_row.groupby(['Calificacion']).size().reset_index(name='count')
-    fig = px.pie(scores, values="count", names=['Dislike',  'No response','Like'])
+    selected_row['Calificacion'] = selected_row['Calificacion'].apply(lambda x: str(x) )
+    scores = selected_row.groupby(['Calificacion', 'DeweyUnidad']).size().reset_index(name='count')
+
+    scores = scores[['DeweyUnidad', 'Calificacion', 'count']]
+    fig = px.bar(scores, x="DeweyUnidad", y="count", color="Calificacion", color_discrete_map={
+        '-1': 'red',
+        '1': 'green',
+        '0': 'blue',
+    })
+    fig.update_xaxes(type='category')
     return fig
 
-if __name__ == '__main__':
-    print(reviewed_books)
-    app.run_server(debug=False, port=8053)

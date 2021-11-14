@@ -4,23 +4,25 @@
 Dashboard that shows user groups with percentages
 and recommended books
 '''
-import dash
 from dash import dcc, html
 import plotly.express as px
 import pandas as pd
 from dash.dependencies import Input, Output
 
-app = dash.Dash(__name__)
+from app import app
+from .feedbacks import feedbacks
+from .joinTablas import joinTablas
 """
 Importacion de datos
 """
 
 #Traemos los feedbacks de los usuarios con sus recomendaciones
-feedbacks: pd.DataFrame = pd.DataFrame(pd.read_json('https://www.dropbox.com/s/fn2o86tbrplkjpd/recomedaciones_finalesMasFeedback.json?dl=1'))
+feedbacks: pd.DataFrame = feedbacks
 
 #Traemos todas las llaves con susu deweys de todas las unidades
-all_deweys: pd.DataFrame = pd.DataFrame(pd.read_json('https://www.dropbox.com/s/q38zr341seq7rkf/joinTablas.json?dl=1'))
+all_deweys: pd.DataFrame = joinTablas
 all_deweys = all_deweys[['DeweyUnidad', 'DeweyDecena', 'DeweyCentena', 'Llave']]
+all_deweys = pd.DataFrame(all_deweys.drop_duplicates())
 
 #Join entre las dos tablas desde la Llave del libro
 reviewed_books: pd.DataFrame = feedbacks.merge(all_deweys, on='Llave', suffixes=('_feedback', '_all_deweys'))
@@ -37,7 +39,7 @@ dewey_filters = [
 """
 HTML
 """
-app.layout = html.Div(children=[
+layout = html.Div(children=[
     html.H1(children='UAQUE: Feedback de los usuarios'),
 
     html.Div(
