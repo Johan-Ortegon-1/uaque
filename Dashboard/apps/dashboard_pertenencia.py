@@ -4,14 +4,15 @@
 Dashboard that shows user groups with percentages
 and recommended books
 '''
-import dash
 from dash import dcc, html
 import plotly.express as px
 import pandas as pd
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output
 
-app = dash.Dash(__name__)
+from app import app
+from .pesos_usuario import pesos_usuario
+from .recomendaciones_completas import recomendaciones_completas
 """
 Importacion de datos
 """
@@ -19,9 +20,7 @@ Importacion de datos
 
 
 #traer tabla con: IDUsuario, DeweyUnidad, Titulo, Llave que fueron recomendados a los usuarios
-recomendaciones_completas: pd.DataFrame = pd.DataFrame(pd.read_json('https://www.dropbox.com/s/0a9rcgbg8fmsbjt/recomedaciones_completas2.json?dl=1'))
-#Traer pesos de los usuarios (suman 1)
-pesos_usuario: pd.DataFrame = pd.DataFrame(pd.read_json('https://www.dropbox.com/s/ofoevb2xjp859vi/pesos_norm_id_unidad2.json?dl=1'))
+recomendaciones_completas: pd.DataFrame = recomendaciones_completas
 
 """
 Creacion de labels para los dropdowns
@@ -33,12 +32,12 @@ id_users = [{"label": x, "value": x } for x in pesos_usuario["IDUsuario"].unique
 """
 HTML
 """
-app.layout = html.Div(children=[
+layout = html.Div(children=[
     html.H1(children='UAQUE: Pertenencia de los usuarios'),
 
     html.Div(
         dcc.Dropdown(
-            id="users_id_dropdown",
+            id="users_id_pertenencia_dropdown",
             value="50052490d474975ef40a67220d0491571630eca6",
             clearable=False
         )
@@ -72,8 +71,8 @@ del input y el retorno es valor que va a tener el segundo argumento del output.
 
 #Cuando cambia el valor de busqueda, cambian las opciones que preesnta el dropdown.
 @app.callback(
-    Output("users_id_dropdown", "options"),
-    Input("users_id_dropdown", "search_value")
+    Output("users_id_pertenencia_dropdown", "options"),
+    Input("users_id_pertenencia_dropdown", "search_value")
 )
 def update_options(search_value):
     if not search_value:
@@ -84,7 +83,7 @@ def update_options(search_value):
 #Cuando cambia el valor del dropdown cambia el nombre de usuario del titulo
 @app.callback(
     Output("user_name", "children"),
-    [Input("users_id_dropdown", "value")]
+    [Input("users_id_pertenencia_dropdown", "value")]
 )
 
 def update_table_title(user_name):
@@ -94,7 +93,7 @@ def update_table_title(user_name):
 #Cuando cambia el valor del dropdown, cambia la lista de libros
 @app.callback(
     Output("book_list", "children"),
-    [Input("users_id_dropdown", "value")]
+    [Input("users_id_pertenencia_dropdown", "value")]
 )
 def update_book_list(dropdown_value):
     #Obtenemos la lista de libros recomendados del usuario
@@ -121,7 +120,7 @@ def update_book_list(dropdown_value):
 #Cuando cambia el valor del dropdown, cambia la grafica
 @app.callback(
     Output("dewey_graph", "figure"),
-    [Input("users_id_dropdown", "value")]
+    [Input("users_id_pertenencia_dropdown", "value")]
 )
 
 def update_graph(dropdown_value):
@@ -147,5 +146,3 @@ def update_graph(dropdown_value):
     fig.update_layout(showlegend=False)
     return fig
 
-if __name__ == '__main__':
-    app.run_server(debug=False)

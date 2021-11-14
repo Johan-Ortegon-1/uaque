@@ -10,33 +10,29 @@ import plotly.express as px
 import pandas as pd
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
-
-app = dash.Dash(__name__)
+from app import app
+from .feedbacks import feedbacks
 """
 Importacion de datos
 """
 
-all_deweys: pd.DataFrame = pd.DataFrame(pd.read_json('https://www.dropbox.com/s/q38zr341seq7rkf/joinTablas.json?dl=1'))
-all_deweys = all_deweys[['DeweyUnidad', 'Llave']]
-
 #Traemos los feedbacks de los usuarios con sus recomendaciones
-feedbacks: pd.DataFrame = pd.DataFrame(pd.read_json('https://www.dropbox.com/s/fn2o86tbrplkjpd/recomedaciones_finalesMasFeedback.json?dl=1'))
-feedbacks = feedbacks[['IDUsuario', 'Calificacion', 'Llave']]
+feedbacks: pd.DataFrame = feedbacks
+feedbacks = feedbacks[['IDUsuario', 'Calificacion']]
 
-#Join entre las dos tablas desde la Llave del libro
-reviewed_books: pd.DataFrame = feedbacks.merge(all_deweys, on='Llave', suffixes=('_feedback', '_all_deweys'))
+reviewed_books = pd.DataFrame(feedbacks)
 
 id_users = [{"label": x, "value": x } for x in reviewed_books["IDUsuario"].unique()]
 
 """
 HTML
 """
-app.layout = html.Div(children=[
+layout = html.Div(children=[
     html.H1(children='UAQUE: Feedback de los usuarios individuales'),
 
     html.Div(
         dcc.Dropdown(
-            id="users_id_dropdown",
+            id="individual_users_id_dropdown",
             options=id_users,
             clearable=False,
             searchable=True,
@@ -45,15 +41,15 @@ app.layout = html.Div(children=[
     ),
 
     dcc.Graph(
-        id='feedback_graph',
+        id='feedback_user_graph',
     ),
 
 ])
 
 #Cuando cambia el valor de busqueda, cambian las opciones que preesnta el dropdown.
 @app.callback(
-    Output("users_id_dropdown", "options"),
-    Input("users_id_dropdown", "search_value")
+    Output("individual_users_id_dropdown", "options"),
+    Input("individual_users_id_dropdown", "search_value")
 )
 def update_options(search_value):
     if not search_value:
@@ -66,20 +62,17 @@ Update graph based on
 user list value
 '''
 @app.callback(
-    Output("feedback_graph", "figure"),
+    Output("feedback_user_graph", "figure"),
     [Input("users_id_dropdown", "value")],
 )
 
 def update_graph(id_user):
     selected_row: pd.DataFrame  = reviewed_books.loc[(reviewed_books['IDUsuario'] == id_user) ]
-    selected_row['Calificacion'] = selected_row['Calificacion'].apply(lambda x: str(x) )
-    scores = selected_row.groupby(['Calificacion', 'DeweyUnidad']).size().reset_index(name='count')
-
-    scores = scores[['DeweyUnidad', 'Calificacion', 'count']]
-    print(scores)
-    fig = px.bar(scores, x="DeweyUnidad", y="count", color="Calificacion")
-    fig.update_xaxes(type='category')
+    print(selected_row)
+    scores = selected_row.groupby(['Calificacion']).size().reset_index(name='count')
+    fig = px.pie(scores, values="count", names=['Dislike',  'No response','Like'])
     return fig
 
 if __name__ == '__main__':
-    app.run_server(debug=True, port=8054)
+    print(reviewed_books)
+    app.run_server(debug=False, port=8053)

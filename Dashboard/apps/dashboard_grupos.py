@@ -8,13 +8,14 @@ import dash
 from dash import dcc, html, dash_table
 import pandas as pd
 from dash.dependencies import Input, Output
-
-app = dash.Dash(__name__)
+from app import app
+from .pesos_usuario import pesos_usuario
+from .joinTablas import joinTablas
 """
 Importacion de datos
 """
-pesos_usuario: pd.DataFrame = pd.DataFrame(pd.read_json('https://www.dropbox.com/s/voqnwdzt8cwyr7u/pesos_norm_id_unidad.json?dl=1'))
-join_tables: pd.DataFrame = pd.DataFrame(pd.read_json('https://www.dropbox.com/s/q38zr341seq7rkf/joinTablas.json?dl=1'))
+pesos_usuario: pd.DataFrame = pesos_usuario
+join_tables: pd.DataFrame = joinTablas
 
 table_columns = ['nombre_usuario', 'email','IDUsuario', 'Facultad', 'Programa']
 
@@ -31,7 +32,7 @@ dewey_filters = [
         ]
 
 
-app.layout = html.Div(children=[
+layout = html.Div(children=[
     html.H1(children='Grupos UAQUE'),
     html.Div([
         dcc.Dropdown(
@@ -42,7 +43,7 @@ app.layout = html.Div(children=[
             searchable=False,
         ),
         dcc.Dropdown(
-            id="dewey_list_dropdown",
+            id="dewey_groups_list_dropdown",
             value="725",
             clearable=False
         ),
@@ -69,7 +70,7 @@ app.layout = html.Div(children=[
 Filters dewey list based on value of dewey filter
 '''
 @app.callback(
-    Output("dewey_list_dropdown", "options"),
+    Output("dewey_groups_list_dropdown", "options"),
     Input("dewey_filter_dropdown", "value")
 )
 def update_dewey_list_options(selected_dewey_level):
@@ -84,7 +85,7 @@ def update_dewey_list_options(selected_dewey_level):
 
 @app.callback(
     Output("users_table", "data"),
-    [Input("dewey_list_dropdown", "value")],
+    [Input("dewey_groups_list_dropdown", "value")],
 )
 
 def update_table(dewey):
