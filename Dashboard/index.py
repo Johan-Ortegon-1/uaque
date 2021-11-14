@@ -7,10 +7,10 @@ from app import app
 
 from apps import (
         dashboard_feedback_por_dewey,
-        #dashboard_feedbacks,
-        #dashboard_feedbacks_individual,
-        #dashboard_grupos,
-        #dashboard_pertenencia,
+        dashboard_feedbacks,
+        dashboard_feedbacks_individual,
+        dashboard_grupos,
+        dashboard_pertenencia,
         )
 
 # the style arguments for the sidebar. We use position:fixed and a fixed width
@@ -67,13 +67,13 @@ def render_page_content(pathname):
     if pathname == '/apps/feedbackDewey':
         return dashboard_feedback_por_dewey.layout
     elif pathname == '/apps/feedbacks':
-        pass #return dashboard_feedbacks.layout
+        return dashboard_feedbacks.layout
     elif pathname == '/apps/feedbackIndividual':
-        pass #return dashboard_feedbacks_individual.layout
+        return dashboard_feedbacks_individual.layout
     elif pathname == '/apps/grupos':
-        pass #return dashboard_grupos.layout
+        return dashboard_grupos.layout
     elif pathname == '/apps/pertenencia':
-        pass #return dashboard_pertenencia.layout
+        return dashboard_pertenencia.layout
     else:
         return dbc.Jumbotron(
                 [
