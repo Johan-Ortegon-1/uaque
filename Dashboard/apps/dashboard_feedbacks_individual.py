@@ -15,13 +15,6 @@ from .feedbacks import feedbacks
 """
 Importacion de datos
 """
-
-#Traemos los feedbacks de los usuarios con sus recomendaciones
-feedbacks: pd.DataFrame = feedbacks
-feedbacks = feedbacks[['IDUsuario', 'Calificacion']]
-
-reviewed_books = pd.DataFrame(feedbacks)
-
 id_users = [{"label": x, "value": x } for x in reviewed_books["IDUsuario"].unique()]
 
 """
@@ -63,16 +56,15 @@ user list value
 '''
 @app.callback(
     Output("feedback_user_graph", "figure"),
-    [Input("users_id_dropdown", "value")],
+    [Input("individual_users_id_dropdown", "value")],
 )
 
 def update_graph(id_user):
+    #Traemos los feedbacks de los usuarios con sus recomendaciones
+    reviewed_books = pd.DataFrame(feedbacks[['IDUsuario', 'Calificacion']])
+
     selected_row: pd.DataFrame  = reviewed_books.loc[(reviewed_books['IDUsuario'] == id_user) ]
-    print(selected_row)
     scores = selected_row.groupby(['Calificacion']).size().reset_index(name='count')
     fig = px.pie(scores, values="count", names=['Dislike',  'No response','Like'])
     return fig
 
-if __name__ == '__main__':
-    print(reviewed_books)
-    app.run_server(debug=False, port=8053)

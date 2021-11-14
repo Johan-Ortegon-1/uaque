@@ -4,7 +4,6 @@
 Dashboard that shows users in a particular
 Dewey group
 '''
-import dash
 from dash import dcc, html, dash_table
 import pandas as pd
 from dash.dependencies import Input, Output
@@ -128,5 +127,3 @@ def level_to_dewey_option(selected_dewey_level):
     return selected_dewey_option
 
 
-if __name__ == '__main__':
-    app.run_server(debug=False, port=8052)

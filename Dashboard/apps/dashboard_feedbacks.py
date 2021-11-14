@@ -10,23 +10,10 @@ import pandas as pd
 from dash.dependencies import Input, Output
 
 from app import app
-from .feedbacks import feedbacks
-from .joinTablas import joinTablas
+from .reviewed_books import reviewed_books
 """
 Importacion de datos
 """
-
-#Traemos los feedbacks de los usuarios con sus recomendaciones
-feedbacks: pd.DataFrame = feedbacks
-
-#Traemos todas las llaves con susu deweys de todas las unidades
-all_deweys: pd.DataFrame = joinTablas
-all_deweys = all_deweys[['DeweyUnidad', 'DeweyDecena', 'DeweyCentena', 'Llave']]
-all_deweys = pd.DataFrame(all_deweys.drop_duplicates())
-
-#Join entre las dos tablas desde la Llave del libro
-reviewed_books: pd.DataFrame = feedbacks.merge(all_deweys, on='Llave', suffixes=('_feedback', '_all_deweys'))
-reviewed_books = pd.DataFrame(reviewed_books.drop_duplicates(subset=['IDUsuario', 'Calificacion', 'Llave']))
 
 #Dropdown para seleccion de dewey
 dewey_filters = [
@@ -139,5 +126,3 @@ def level_to_dewey_option(selected_dewey_level):
         selected_dewey_option = 'DeweyUnidad'
     return selected_dewey_option
 
-if __name__ == '__main__':
-    app.run_server(debug=False, port=8051)

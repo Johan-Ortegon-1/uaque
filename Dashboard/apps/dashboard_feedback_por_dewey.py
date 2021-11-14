@@ -10,23 +10,12 @@ import pandas as pd
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 from app import app
-from .joinTablas import joinTablas
-from .feedbacks import feedbacks
+
+from .reviewed_books import reviewed_books
 """
 Importacion de datos
 """
 
-all_deweys: pd.DataFrame = joinTablas
-all_deweys = all_deweys[['DeweyUnidad', 'Llave']]
-all_deweys = pd.DataFrame(all_deweys.drop_duplicates())
-
-#Traemos los feedbacks de los usuarios con sus recomendaciones
-feedbacks: pd.DataFrame =  feedbacks
-feedbacks = feedbacks[['IDUsuario', 'Calificacion', 'Llave']]
-
-#Join entre las dos tablas desde la Llave del libro
-reviewed_books: pd.DataFrame = feedbacks.merge(all_deweys, on='Llave', suffixes=('_feedback', '_all_deweys'))
-reviewed_books = pd.DataFrame( reviewed_books.drop_duplicates(subset=['IDUsuario', 'Llave', 'Calificacion']))
 
 id_users = [{"label": x, "value": x } for x in reviewed_books["IDUsuario"].unique()]
 
