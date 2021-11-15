@@ -6,10 +6,8 @@ import dash_bootstrap_components as dbc
 from app import app
 
 from apps import (
-        dashboard_feedbacks,
-        #dashboard_grupos,
-        #dashboard_pertenencia,
-        #dashboard_generar_recomendaciones,
+        dashboard_feedback_por_dewey,
+        dashboard_feedbacks_individual,
         )
 
 # the style arguments for the sidebar. We use position:fixed and a fixed width
@@ -35,14 +33,12 @@ sidebar = html.Div(
         html.H2("UAQUE", className="display-4"),
         html.Hr(),
         html.P(
-            "Dashboards disponibles", className="lead"
+            "Dashboards para uso de desarrolladores", className="lead"
         ),
         dbc.Nav(
             [
-                dbc.NavLink("Feedbacks grupales", href="/apps/feedbacks", active="exact"),
-                dbc.NavLink("Información de grupos", href="/apps/grupos", active="exact"),
-                dbc.NavLink("Pertenencias de usuarios", href="/apps/pertenencia", active="exact"),
-                dbc.NavLink("Generar recomendaciones", href="/apps/generar_recomendaciones", active="exact"),
+                dbc.NavLink("Feedbacks individuales", href="/apps/feedbackIndividual", active="exact"),
+                dbc.NavLink("Feedbacks individuales por Dewey", href="/apps/feedbackDewey", active="exact"),
             ],
             vertical=True,
             pills=True,
@@ -62,14 +58,10 @@ app.layout = html.Div([
 @app.callback(Output("page-content", "children"),
         [Input("url", "pathname")])
 def render_page_content(pathname):
-    if pathname == '/apps/feedbacks':
-        return dashboard_feedbacks.layout
-    elif pathname == '/apps/grupos':
-        pass #return dashboard_grupos.layout
-    elif pathname == '/apps/pertenencia':
-        pass #return dashboard_pertenencia.layout
-    elif pathname == '/apps/generar_recomendaciones':
-        pass #return dashboard_generar_recomendaciones.layout
+    if pathname == '/apps/feedbackDewey':
+        return dashboard_feedback_por_dewey.layout
+    elif pathname == '/apps/feedbackIndividual':
+        return dashboard_feedbacks_individual.layout
     else:
         return dbc.Jumbotron(
                 [
@@ -79,4 +71,4 @@ def render_page_content(pathname):
                 ])
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False, port=8051)

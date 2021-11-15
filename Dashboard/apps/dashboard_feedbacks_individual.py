@@ -11,7 +11,7 @@ import pandas as pd
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 from app import app
-from .feedbacks import feedbacks
+from .reviewed_books import reviewed_books
 """
 Importacion de datos
 """

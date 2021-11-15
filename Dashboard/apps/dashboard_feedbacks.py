@@ -9,8 +9,9 @@ import plotly.express as px
 import pandas as pd
 from dash.dependencies import Input, Output
 
+import dash_bootstrap_components as dbc
 from app import app
-from .reviewed_books import reviewed_books
+import requests
 """
 Importacion de datos
 """
@@ -29,27 +30,30 @@ HTML
 layout = html.Div(children=[
     html.H1(children='UAQUE: Feedback de los usuarios'),
 
-    html.Div(
-        dcc.Dropdown(
-            id="dewey_filter_dropdown",
-            value="BC",
-            options=dewey_filters,
-            clearable=False,
-            searchable=False,
-        )
-    ),
+    dbc.Spinner(children=[
+        html.Div(
+            dcc.Dropdown(
+                id="dewey_filter_dropdown",
+                value="BC",
+                options=dewey_filters,
+                clearable=False,
+                searchable=False,
+            )
+        ),
 
-    html.Div(
-        dcc.Dropdown(
-            id="dewey_list_dropdown",
-            value="0",
-            clearable=False
-        )
-    ),
+        html.Div(
+            dcc.Dropdown(
+                id="dewey_list_dropdown",
+                value='0',
+                clearable=False
+            )
+        ),
 
-    dcc.Graph(
-        id='feedback_graph',
-    ),
+        dcc.Graph(
+            id='feedback_graph',
+        ),
+
+        ]),
 
 ])
 '''
@@ -60,14 +64,16 @@ Filters dewey list based on value of dewey filter
     Input("dewey_filter_dropdown", "value")
 )
 def update_dewey_list_options(selected_dewey_level):
-    dewey_list = []
-    selected_dewey_option = level_to_dewey_option(selected_dewey_level)
+    smartuj_endpoint: str = 'localhost:8000/api'
+    uso_biblioteca: str = 'suj-e-004'
+    dashboardFeedback: str = 'DashboardUtilsDeweyList'
 
-    if not selected_dewey_option == 'BC' and not selected_dewey_option == 'Nuevo':
-        dewey_list = reviewed_books[selected_dewey_option].unique()
-        dewey_list = [{"label": x, "value": x } for x in dewey_list]
-    else:
-        dewey_list=[]
+    #Agrupamiento crear perfiles grupales  http://{{smartuj-endpoint}}/{{perfil-grupal}}/model
+    url_dewey_list: str= 'http://'+smartuj_endpoint+'/'+uso_biblioteca+'/'+dashboardFeedback
+
+    dewey_list = (requests.get(url=url_dewey_list, params={'selected_dewey_level': selected_dewey_level}))
+    dewey_list = dewey_list.json()
+
     return dewey_list
 
 '''
@@ -81,11 +87,15 @@ dewey list value
 )
 
 def update_graph(dewey, dewey_unit):
-    dewey_unit_name = level_to_dewey_option(dewey_unit)
-    if not dewey_unit_name == 'BC' and not dewey_unit_name == 'Nuevo':
-        selected_row: pd.DataFrame = reviewed_books.loc[(reviewed_books['Nivel'] == float(dewey_unit)) & (reviewed_books[dewey_unit_name]== dewey)]
-    else:
-        selected_row: pd.DataFrame  = reviewed_books.loc[(reviewed_books['Nivel'] == dewey_unit) ]
+
+    smartuj_endpoint: str = 'localhost:8000/api'
+    uso_biblioteca: str = 'suj-e-004'
+    dashboardFeedback: str = 'DashboardFeedback'
+
+    #Agrupamiento crear perfiles grupales  http://{{smartuj-endpoint}}/{{perfil-grupal}}/model
+    url_feedbacks: str= 'http://'+smartuj_endpoint+'/'+uso_biblioteca+'/'+dashboardFeedback
+
+    selected_row= pd.DataFrame(requests.get(url=url_feedbacks, params={'dewey': dewey, 'dewey_unit': dewey_unit}).json())
     scores = selected_row.groupby(['Calificacion']).size().reset_index(name='count')
     if scores.empty:
         fig =  {
@@ -108,21 +118,4 @@ def update_graph(dewey, dewey_unit):
     else:
         fig = px.pie(scores, values="count", names=['Dislike',  'No response','Like'])
     return fig
-
-#Dado un valor numerico de dewey, se devuelve el nombre de ese valor
-def level_to_dewey_option(selected_dewey_level):
-    if selected_dewey_level == "0.5":
-        selected_dewey_option = 'DeweyUnidad'
-    elif selected_dewey_level == "0.2":
-        selected_dewey_option = 'DeweyDecena'
-    elif selected_dewey_level == "0.1":
-        selected_dewey_option = 'DeweyCentena'
-    elif selected_dewey_level == "BC":
-        selected_dewey_option = 'BC'
-    elif selected_dewey_level == "Nuevo":
-        selected_dewey_option = 'BC'
-    else:
-        print("ERROR", selected_dewey_level)
-        selected_dewey_option = 'DeweyUnidad'
-    return selected_dewey_option
 
