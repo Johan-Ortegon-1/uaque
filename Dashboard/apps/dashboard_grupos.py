@@ -15,7 +15,7 @@ import dash_bootstrap_components as dbc
 Importacion de datos
 """
 
-table_columns = ["nombre_usuario", "email", "IDUsuario", "Facultad", "Programa"]
+table_columns = ["IDUsuario", "Facultad", "Programa"]
 
 
 dewey_filters = [
@@ -109,7 +109,6 @@ def update_table(dewey):
 
     selected_rows = requests.get(url=url_grupos, params={"dewey": dewey})
     selected_rows = selected_rows.json()
-    print(selected_rows)
     return selected_rows
 
 

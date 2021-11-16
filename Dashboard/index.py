@@ -6,11 +6,11 @@ import dash_bootstrap_components as dbc
 from app import app
 
 from apps import (
-        dashboard_feedbacks,
-        dashboard_grupos,
-        #dashboard_pertenencia,
-        #dashboard_generar_recomendaciones,
-        )
+    dashboard_feedbacks,
+    dashboard_grupos,
+    dashboard_pertenencia,
+    # dashboard_generar_recomendaciones,
+)
 
 # the style arguments for the sidebar. We use position:fixed and a fixed width
 SIDEBAR_STYLE = {
@@ -34,15 +34,23 @@ sidebar = html.Div(
     [
         html.H2("UAQUE", className="display-4"),
         html.Hr(),
-        html.P(
-            "Dashboards disponibles", className="lead"
-        ),
+        html.P("Dashboards disponibles", className="lead"),
         dbc.Nav(
             [
-                dbc.NavLink("Feedbacks grupales", href="/apps/feedbacks", active="exact"),
-                dbc.NavLink("Información de grupos", href="/apps/grupos", active="exact"),
-                dbc.NavLink("Pertenencias de usuarios", href="/apps/pertenencia", active="exact"),
-                dbc.NavLink("Generar recomendaciones", href="/apps/generar_recomendaciones", active="exact"),
+                dbc.NavLink(
+                    "Feedbacks grupales", href="/apps/feedbacks", active="exact"
+                ),
+                dbc.NavLink(
+                    "Información de grupos", href="/apps/grupos", active="exact"
+                ),
+                dbc.NavLink(
+                    "Pertenencias de usuarios", href="/apps/pertenencia", active="exact"
+                ),
+                dbc.NavLink(
+                    "Generar recomendaciones",
+                    href="/apps/generar_recomendaciones",
+                    active="exact",
+                ),
             ],
             vertical=True,
             pills=True,
@@ -52,31 +60,35 @@ sidebar = html.Div(
 )
 content = html.Div(id="page-content", style=CONTENT_STYLE)
 
-app.layout = html.Div([
-    dcc.Location(id='url', refresh=True),
-    sidebar,
-    # content will be rendered in this element
-    content,
-])
+app.layout = html.Div(
+    [
+        dcc.Location(id="url", refresh=True),
+        sidebar,
+        # content will be rendered in this element
+        content,
+    ]
+)
 
-@app.callback(Output("page-content", "children"),
-        [Input("url", "pathname")])
+
+@app.callback(Output("page-content", "children"), [Input("url", "pathname")])
 def render_page_content(pathname):
-    if pathname == '/apps/feedbacks':
+    if pathname == "/apps/feedbacks":
         return dashboard_feedbacks.layout
-    elif pathname == '/apps/grupos':
+    elif pathname == "/apps/grupos":
         return dashboard_grupos.layout
-    elif pathname == '/apps/pertenencia':
-        pass #return dashboard_pertenencia.layout
-    elif pathname == '/apps/generar_recomendaciones':
-        pass #return dashboard_generar_recomendaciones.layout
+    elif pathname == "/apps/pertenencia":
+        return dashboard_pertenencia.layout
+    elif pathname == "/apps/generar_recomendaciones":
+        pass  # return dashboard_generar_recomendaciones.layout
     else:
         return dbc.Jumbotron(
-                [
-                    html.H1("404: Not found", className="text-danger"),
-                    html.Hr(),
-                    html.P(f"The pathname {pathname} was not recognised..."),
-                ])
+            [
+                html.H1("404: Not found", className="text-danger"),
+                html.Hr(),
+                html.P(f"The pathname {pathname} was not recognised..."),
+            ]
+        )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app.run_server(debug=True)
