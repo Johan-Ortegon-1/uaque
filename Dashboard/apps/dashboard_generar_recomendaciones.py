@@ -1,6 +1,5 @@
 import time
-from dash.html.Col import Col
-from dash_bootstrap_components._components.Spinner import Spinner
+from dash.html.Col import Col from dash_bootstrap_components._components.Spinner import Spinner
 import requests
 from dash import dcc, html
 from dash.dependencies import Input, Output
@@ -35,8 +34,8 @@ perfil_grupal: str = 'suj-s-009'
 uso_biblioteca: str = 'suj-e-004'
 dataprep: str = ''
 
-url_material: str= 'http://'+smartuj_endpoint+'/'+uso_biblioteca+'/'+'material'
-url_prestamos: str= 'http://'+smartuj_endpoint+'/'+uso_biblioteca+'/'+'prestamos'
+url_material: str= 'http://'+smartuj_endpoint+'/'+uso_biblioteca+'/'+'DashboardControlPanelMaterialUpdate'
+url_prestamos: str= 'http://'+smartuj_endpoint+'/'+uso_biblioteca+'/'+'DashboardControlPanelPrestamosUpdate'
 
 url_limpieza_datos: str= 'http://'+smartuj_endpoint+'/'+uso_biblioteca+'/'+'dataprep'
 
@@ -139,7 +138,7 @@ layout = html.Div(children=[
 )
 def request_material(n, nuevo_url_material):
     if n:
-        # r = requests.get(url=url_material, params={"url": nuevo_url_material})
+        r = requests.get(url=url_material, params={"url": nuevo_url_material})
         time.sleep(1)
         return "Material actualizado"
 
@@ -150,7 +149,7 @@ def request_material(n, nuevo_url_material):
 )
 def request_prestamos(n, nuevo_url_prestamos):
     if n:
-        # r = requests.get(url=url_prestamos, params={"url": nuevo_url_prestamos})
+        r = requests.get(url=url_prestamos, params={"url": nuevo_url_prestamos})
         time.sleep(1)
         return "Prestamos actualizados"
 
@@ -160,7 +159,7 @@ def request_prestamos(n, nuevo_url_prestamos):
 )
 def request_limpieza(n):
     if n:
-        #r = requests.get(url=url_limpieza_datos, params={})
+        r = requests.get(url=url_limpieza_datos, params={})
         time.sleep(1)
         return "Limpieza terminada"
 
@@ -170,7 +169,7 @@ def request_limpieza(n):
 )
 def request_agrupamiento(n):
     if n:
-        #r = requests.get(url=url_agrupamiento, params={})
+        r = requests.get(url=url_agrupamiento, params={})
         time.sleep(1)
         return "Agrupamiento terminado"
 
@@ -180,6 +179,6 @@ def request_agrupamiento(n):
 )
 def request_entrenamineto(n):
     if n:
-        #r = requests.get(url=url_entrenamiento, params={})
+        r = requests.get(url=url_entrenamiento, params={})
         time.sleep(1)
         return "Entrenamiento terminado"
