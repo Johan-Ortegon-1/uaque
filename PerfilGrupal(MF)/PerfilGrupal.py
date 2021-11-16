@@ -27,6 +27,8 @@ class PerfilGrupal:
         #Creamos la columna pesos para el dataframe a partir del año en que se realizó el prestamo
         self.join["Peso"] = self.join.apply(lambda row: 1/2**(anio_actual-row.Year), axis=1 )
         self.join[["Year","Peso"]]
+        self.join.loc[self.join.calificacion.isnull(), "calificacion"] = 1.0
+        self.join["Peso"] = self.join.apply(lambda row: (row.calificacion*row.Peso), axis=1 )
         
         
     #crearTablaPesos: crea la tabla de pesos por usuario
@@ -40,7 +42,10 @@ class PerfilGrupal:
         #creamos las columnas a partir de los deweys diferentes. 
         agrupacion = self.join.groupby(["IDUsuario",columna])["Peso"].sum().reset_index(name="Peso")
         display(agrupacion.head(5))
-
+        
+        #Los pesos no deben ser menores a cero
+        agrupacion.loc[agrupacion.Peso < 0.0, "Peso"] = 0
+        
         #cración del dataframe
         pesos_usuarios = pd.DataFrame()
         #Dataframe auxiliar para acelerar el proceso de concat
