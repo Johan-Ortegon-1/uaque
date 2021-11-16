@@ -66,7 +66,7 @@ Filters dewey list based on value of dewey filter
 def update_dewey_list_options(selected_dewey_level):
     smartuj_endpoint: str = 'localhost:8000/api'
     uso_biblioteca: str = 'suj-e-004'
-    dashboardFeedback: str = 'DashboardUtilsDeweyList'
+    dashboardFeedback: str = 'DashboardFeedbackUtilsDeweyList'
 
     #Agrupamiento crear perfiles grupales  http://{{smartuj-endpoint}}/{{perfil-grupal}}/model
     url_dewey_list: str= 'http://'+smartuj_endpoint+'/'+uso_biblioteca+'/'+dashboardFeedback

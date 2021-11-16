@@ -7,22 +7,14 @@ Dewey group
 from dash import dcc, html, dash_table
 import pandas as pd
 from dash.dependencies import Input, Output
+import requests
 from app import app
-from .pesos_usuario import pesos_usuario
-from .joinTablas import joinTablas
 """
 Importacion de datos
 """
-pesos_usuario: pd.DataFrame = pesos_usuario
-join_tables: pd.DataFrame = joinTablas
 
 table_columns = ['nombre_usuario', 'email','IDUsuario', 'Facultad', 'Programa']
 
-all_deweys = join_tables[['DeweyUnidad', 'DeweyDecena', 'DeweyCentena']]
-users_info = join_tables[['IDUsuario', 'Facultad', 'Programa','DeweyUnidad', 'DeweyDecena', 'DeweyCentena']]
-users_info = users_info.drop_duplicates(subset=['IDUsuario', 'Facultad', 'Programa'])
-users_info = users_info.merge(pesos_usuario, on='IDUsuario')
-fake_users_info = pd.DataFrame(pd.read_json('https://www.dropbox.com/s/vb2uehwpmn2sboz/MOCK_DATA_ESTUDIANTES.json?dl=1'))
 
 dewey_filters = [
         {"label":"Dewey Unidad", "value": "0.5"},
@@ -73,11 +65,15 @@ Filters dewey list based on value of dewey filter
     Input("dewey_filter_dropdown", "value")
 )
 def update_dewey_list_options(selected_dewey_level):
-    dewey_list = []
-    selected_dewey_option = level_to_dewey_option(selected_dewey_level)
+    smartuj_endpoint: str = 'localhost:8000/api'
+    uso_biblioteca: str = 'suj-e-004'
+    dashboardFeedback: str = 'DashboardGruposUtilsDeweyList'
 
-    dewey_list = all_deweys[selected_dewey_option].unique()
-    dewey_list = [{"label": x, "value": x } for x in dewey_list]
+    #Agrupamiento crear perfiles grupales  http://{{smartuj-endpoint}}/{{perfil-grupal}}/model
+    url_dewey_list: str= 'http://'+smartuj_endpoint+'/'+uso_biblioteca+'/'+dashboardFeedback
+
+    dewey_list = (requests.get(url=url_dewey_list, params={'selected_dewey_level': selected_dewey_level}))
+    dewey_list = dewey_list.json()
 
     return dewey_list
 
@@ -88,19 +84,16 @@ def update_dewey_list_options(selected_dewey_level):
 )
 
 def update_table(dewey):
-    threshold = 0.2
-    if dewey == -999:
-        dewey = "-999"
-    does_dewey_match = users_info[str(dewey)] >= threshold
-    selected_rows = users_info.loc[does_dewey_match]
-    selected_rows = selected_rows[['IDUsuario', 'Facultad', 'Programa']]
-    #insert mock data
-    n_rows = len(selected_rows.index)
-    if n_rows>len(fake_users_info.index):
-        n_rows = len(fake_users_info.index)
-    fake_info = fake_users_info.sample(n=n_rows)
-    selected_rows = pd.concat([selected_rows.reset_index(),fake_info.reset_index()], axis=1)
-    return selected_rows[table_columns].to_dict('records')
+
+    smartuj_endpoint: str = 'localhost:8000/api'
+    uso_biblioteca: str = 'suj-e-004'
+    dashboardGrupos: str = 'Dashboard'
+
+    url_grupos: str= 'http://'+smartuj_endpoint+'/'+uso_biblioteca+'/'+ dashboardGrupos
+
+    selected_rows = requests.get(url=url_grupos, params={'dewey': dewey})
+    selected_rows = selected_rows.json()
+    return selected_rows
 
 @app.callback(
         Output('count','children'),

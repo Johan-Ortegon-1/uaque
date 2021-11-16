@@ -7,7 +7,7 @@ from app import app
 
 from apps import (
         dashboard_feedbacks,
-        #dashboard_grupos,
+        dashboard_grupos,
         #dashboard_pertenencia,
         #dashboard_generar_recomendaciones,
         )
@@ -65,7 +65,7 @@ def render_page_content(pathname):
     if pathname == '/apps/feedbacks':
         return dashboard_feedbacks.layout
     elif pathname == '/apps/grupos':
-        pass #return dashboard_grupos.layout
+        return dashboard_grupos.layout
     elif pathname == '/apps/pertenencia':
         pass #return dashboard_pertenencia.layout
     elif pathname == '/apps/generar_recomendaciones':
