@@ -11,11 +11,12 @@ import pandas as pd
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 from app import app
-from .feedbacks import feedbacks
+import requests
+#from .reviewed_books import reviewed_books
 """
 Importacion de datos
 """
-id_users = [{"label": x, "value": x } for x in reviewed_books["IDUsuario"].unique()]
+#id_users = [{"label": x, "value": x } for x in reviewed_books["IDUsuario"].unique()]
 
 """
 HTML
@@ -26,7 +27,6 @@ layout = html.Div(children=[
     html.Div(
         dcc.Dropdown(
             id="individual_users_id_dropdown",
-            options=id_users,
             clearable=False,
             searchable=True,
             value="6466dbb15c41fdacb59eb1179817958de2c57191",
@@ -47,8 +47,18 @@ layout = html.Div(children=[
 def update_options(search_value):
     if not search_value:
         raise PreventUpdate
+
+    smartuj_endpoint: str = 'localhost:8000/api'
+    uso_biblioteca: str = 'suj-e-004'
+    dashboardFIndividualOptions: str = 'DashboardFeedbackIndividualUtilsOption'
+
+
+    #Agrupamiento crear perfiles grupales  http://{{smartuj-endpoint}}/{{perfil-grupal}}/model
+    url_feedbacks_por_dewey: str= 'http://'+smartuj_endpoint+'/'+uso_biblioteca+'/'+dashboardFIndividualOptions
+
+    id_users = (requests.get(url=url_feedbacks_por_dewey, params={'search_value':search_value}).json())
     #carga solo 50 resultados (no puede cargar los 40,000)
-    return [o for o in id_users if search_value in o["label"]][0:50]
+    return id_users
 
 '''
 Update graph based on
@@ -60,10 +70,16 @@ user list value
 )
 
 def update_graph(id_user):
-    #Traemos los feedbacks de los usuarios con sus recomendaciones
-    reviewed_books = pd.DataFrame(feedbacks[['IDUsuario', 'Calificacion']])
 
-    selected_row: pd.DataFrame  = reviewed_books.loc[(reviewed_books['IDUsuario'] == id_user) ]
+    smartuj_endpoint: str = 'localhost:8000/api'
+    uso_biblioteca: str = 'suj-e-004'
+    dashboardFIndividual: str = 'DashboardFeedbackIndividual'
+
+    #Agrupamiento crear perfiles grupales  http://{{smartuj-endpoint}}/{{perfil-grupal}}/model
+    url_feedbacks: str= 'http://'+smartuj_endpoint+'/'+uso_biblioteca+'/'+dashboardFIndividual
+
+    selected_row= pd.DataFrame(requests.get(url=url_feedbacks, params={'id_user': id_user}).json())
+
     scores = selected_row.groupby(['Calificacion']).size().reset_index(name='count')
     fig = px.pie(scores, values="count", names=['Dislike',  'No response','Like'])
     return fig
