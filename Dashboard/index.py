@@ -9,6 +9,8 @@ from apps import (
     dashboard_feedbacks,
     dashboard_grupos,
     dashboard_pertenencia,
+    dashboard_feedback_por_dewey,
+    #dashboard_feedbacks_individual,
     # dashboard_generar_recomendaciones,
 )
 
@@ -51,6 +53,8 @@ sidebar = html.Div(
                     href="/apps/generar_recomendaciones",
                     active="exact",
                 ),
+                dbc.NavLink("Feedbacks individuales", href="/apps/feedbackIndividual", active="exact"),
+                dbc.NavLink("Feedbacks individuales por Dewey", href="/apps/feedbackDewey", active="exact"),
             ],
             vertical=True,
             pills=True,
@@ -78,6 +82,10 @@ def render_page_content(pathname):
         return dashboard_grupos.layout
     elif pathname == "/apps/pertenencia":
         return dashboard_pertenencia.layout
+    elif pathname == '/apps/feedbackDewey':
+        return dashboard_feedback_por_dewey.layout
+    elif pathname == '/apps/feedbackIndividual':
+        pass #return dashboard_feedbacks_individual.layout
     elif pathname == "/apps/generar_recomendaciones":
         pass  # return dashboard_generar_recomendaciones.layout
     else:
