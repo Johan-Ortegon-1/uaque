@@ -11,7 +11,7 @@ from apps import (
     dashboard_pertenencia,
     dashboard_feedback_por_dewey,
     dashboard_feedbacks_individual,
-    # dashboard_generar_recomendaciones,
+    dashboard_generar_recomendaciones,
 )
 
 # the style arguments for the sidebar. We use position:fixed and a fixed width
@@ -48,13 +48,9 @@ sidebar = html.Div(
                 dbc.NavLink(
                     "Pertenencias de usuarios", href="/apps/pertenencia", active="exact"
                 ),
-                dbc.NavLink(
-                    "Generar recomendaciones",
-                    href="/apps/generar_recomendaciones",
-                    active="exact",
-                ),
                 dbc.NavLink("Feedbacks individuales", href="/apps/feedbackIndividual", active="exact"),
                 dbc.NavLink("Feedbacks individuales por Dewey", href="/apps/feedbackDewey", active="exact"),
+                dbc.NavLink("Panel de Control", href="/apps/controlPanel", active="exact"),
             ],
             vertical=True,
             pills=True,
@@ -86,17 +82,13 @@ def render_page_content(pathname):
         return dashboard_feedback_por_dewey.layout
     elif pathname == '/apps/feedbackIndividual':
         return dashboard_feedbacks_individual.layout
-    elif pathname == "/apps/generar_recomendaciones":
-        pass  # return dashboard_generar_recomendaciones.layout
+    elif pathname == "/apps/controlPanel":
+        return dashboard_generar_recomendaciones.layout
     else:
-        return dbc.Jumbotron(
-            [
                 html.H1("404: Not found", className="text-danger"),
                 html.Hr(),
                 html.P(f"The pathname {pathname} was not recognised..."),
-            ]
-        )
 
 
 if __name__ == "__main__":
-    app.run_server(debug=False)
+    app.run_server(debug=True)
