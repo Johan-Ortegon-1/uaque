@@ -10,7 +10,7 @@ from apps import (
     dashboard_grupos,
     dashboard_pertenencia,
     dashboard_feedback_por_dewey,
-    #dashboard_feedbacks_individual,
+    dashboard_feedbacks_individual,
     # dashboard_generar_recomendaciones,
 )
 
@@ -85,7 +85,7 @@ def render_page_content(pathname):
     elif pathname == '/apps/feedbackDewey':
         return dashboard_feedback_por_dewey.layout
     elif pathname == '/apps/feedbackIndividual':
-        pass #return dashboard_feedbacks_individual.layout
+        return dashboard_feedbacks_individual.layout
     elif pathname == "/apps/generar_recomendaciones":
         pass  # return dashboard_generar_recomendaciones.layout
     else:
