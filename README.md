@@ -75,14 +75,23 @@ Para logar este objetivo se realizo el desarrollo de un modelo de analítica y u
 ## Servicios Smart-UJ relacionados
 
 SMART-UJ Api Gateway
+<br>
 SMART-UJ UI Uaque
+<br>
 SMART-UJ Ubicacion por red
+<br>
 SMART-UJ Ubicacion por gps
+<br>
 SMART-UJ Uso biblioteca
+<br>
 SMART-UJ Recomendacion de tematicas por grupo UAQUE
+<br>
 SMART-UJ Ubicacion
+<br>
 SMART-UJ Perfil de usuario
+<br>
 SMART-UJ Perfil grupal
+<br>
 
 ### Herramientas de desarrollo
 
