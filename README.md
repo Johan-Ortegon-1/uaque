@@ -43,12 +43,12 @@
     <li>
       <a href="#getting-started">Información de instalación</a>
       <ul>
-        <li><a href="#prerequisites">Prerequisitos</a></li>
-        <li><a href="#installation">Instalación</a></li>
+        <li><a href="#Prerequisitos">Prerequisitos</a></li>
+        <li><a href="#Instalación">Instalación</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Uso</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#usage">Puesta en marcha</a></li>
+    <li><a href="#roadmap">Como usar el servicio</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
@@ -59,80 +59,50 @@
 
 
 <!-- ABOUT THE PROJECT -->
-## About The Project
+## Acerca del proyecto
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+UAQUE es un proyecto destinado a desarrollar un servicio inteligente para la Pontificia Universidad Javeriana sede Bogotá que permita realizar recomendaciones de material bibliográfico de la Biblioteca Alfonso Borrero Cabal, S.J. de acuerdo con el perfil grupal de las personas de la comunidad académica en el marco de un campus inteligente.
 
-There are many great README templates available on GitHub; however, I didn't find one that really suited my needs so I created this enhanced one. I want to create a README template so amazing that it'll be the last one you ever need -- I think this is it.
-
-Here's why:
-* Your time should be focused on creating something amazing. A project that solves a problem and helps others
-* You shouldn't be doing the same tasks over and over like creating a README from scratch
-* You should implement DRY principles to the rest of your life :smile:
-
-Of course, no one template will serve all projects since your needs may be different. So I'll be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue. Thanks to all the people have contributed to expanding this template!
-
-Use the `BLANK_README.md` to get started.
+Para logar este objetivo se realizo el desarrollo de un modelo de analítica y un conjunto de dashboards que permiten generar las recomendaciones y obtener información de las recomendaciones.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
 
-### Built With
+### Herramientas de desarrollo
 
-This section should list any major frameworks/libraries used to bootstrap your project. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
+A continuación, se listan los frameworks y librerías usadas para el desarrollo de UAQUE
 
-* [Next.js](https://nextjs.org/)
-* [React.js](https://reactjs.org/)
-* [Vue.js](https://vuejs.org/)
-* [Angular](https://angular.io/)
-* [Svelte](https://svelte.dev/)
-* [Laravel](https://laravel.com)
-* [Bootstrap](https://getbootstrap.com)
-* [JQuery](https://jquery.com)
+* [Python](https://www.python.org/)
+* [Scikit-learn - librería(Python)](https://scikit-learn.org/stable/)
+* [Jupyter](https://jupyter.org/)
+* [React](https://reactjs.org/)
+* [Postman](https://www.postman.com/)
+
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
 
 <!-- GETTING STARTED -->
-## Getting Started
+## Información de instalación
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+Instrucciones para replicar el proceso de instalación
 
-### Prerequisites
+### Prerequisitos
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
+....
 
-### Installation
+### Instalación
 
-_Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services._
-
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
-   ```sh
-   git clone https://github.com/your_username_/Project-Name.git
-   ```
-3. Install NPM packages
-   ```sh
-   npm install
-   ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
-   ```
+...
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
 
 <!-- USAGE EXAMPLES -->
-## Usage
+## Uso
 
 Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
 
