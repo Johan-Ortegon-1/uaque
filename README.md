@@ -75,31 +75,40 @@ Para logar este objetivo se realizo el desarrollo de un modelo de analítica y u
 ## Servicios Smart-UJ relacionados
 
 #### SMART-UJ Api Gateway
-
+Enfocada en exponer los servicios desarrollados por UAQUE y expuestos a continuación.
 
 #### SMART-UJ UI Uaque
-
+Interfaces de usuario. Al tratarse de un sistema enfocado en ser usado por dos tipos de usuarios existe una interfaz diferente para cada uno. 
+Para la comunidad académica está la aplicación móvil, enfocada en: 
+<br>
+Configurar las notificaciones de las recomendaciones
+<br>
+Mostrar las notificaciones de las recomendaciones
+<br>
+Usar el formulario para definir los gustos de los usuarios nuevos
+<br>
+Configurar el canal para recibir las notificaciones
+<br>
+Para los funcionarios de la biblioteca existe el dashboard, enfocado en:
+<br>
+Visualizar los datos de las recomendaciones y el proceso de clustering
+<br>
+Configurar las URLs de los archivos que alimentan el modelo de analítica para producir las recomendaciones
 
 #### SMART-UJ Ubicacion por red
-
-
-#### SMART-UJ Ubicacion por gps
-
+Servicio usado para activar las notificaciones que sean configuradas para mostrarse al momento de estar cerca de la biblioteca.
 
 #### SMART-UJ Uso biblioteca
-
+Servicio enfocado en consumir y procesar los datos anonimizados de las transacciones de material bibliográfico registradas por la biblioteca, así como la información del material bibliográfico registrado.
 
 #### SMART-UJ Recomendacion de tematicas por grupo UAQUE
-
-
-#### SMART-UJ Ubicacion
-
+Servicio encargado de generar las recomendaciones por temática Dewey a partir de las transacciones de material bibliográfico y la información de este material bibliográfico y los grupos producidos por el servicio de perfil grupal.
 
 #### SMART-UJ Perfil de usuario
-
+Servicio enfocado en elaborar el perfil de usuario, usado en el proceso de clustering y consumido más adelante por el servicio de perfil grupal.
 
 #### SMART-UJ Perfil grupal
-
+Servicio que se alimenta del perfil de usuario para llevar a cabo un proceso de clustering que permite agrupar usuarios por temática y más adelante generar las recomendaciones.
 
 ### Herramientas de desarrollo
 
