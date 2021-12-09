@@ -35,27 +35,20 @@
   <summary>Tabla de contenido</summary>
   <ol>
     <li>
-      <a href="#acerca-del-proyecto">Acerca del proyecto</a>
+      <a href="#Acerca-del-proyecto">Acerca del proyecto</a>
       <ul>
         <li><a href="#built-with">Tecnologías usadas</a></li>
       </ul>
     </li>
     <li>
-      <a href="#acerca-del-proyecto">Servicios involucrados en el contexto Smart UJ</a>
+      <a href="#Servicios-Smart-UJ-relacionados">Servicios involucrados en el contexto Smart UJ</a>
     </li>
     <li>
       <a href="#getting-started">Información de instalación</a>
       <ul>
-        <li><a href="#Prerequisitos">Prerequisitos</a></li>
-        <li><a href="#Instalación">Instalación</a></li>
+        <li><a href="#Instalación Prerequisitos">Instalación y Prerequisitos</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Puesta en marcha</a></li>
-    <li><a href="#roadmap">Como usar el servicio</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
@@ -130,15 +123,5 @@ A continuación, se listan los frameworks y librerías usadas para el desarrollo
 
 Las instrucciones para replicar el proceso de instalación y los prerequisitos necesarios se encuentran en el siguiente documento: 
 * [Manual completo de instalación](https://github.com/Johan-Ortegon-1/uaque/blob/main/documents/Manual_de_Instalacion_Completo.pdf)
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-<!-- USAGE EXAMPLES -->
-## Uso
-
-...
-
-_For more examples, please refer to the [Documentation](https://example.com)_
 
 <p align="right">(<a href="#top">back to top</a>)</p>
